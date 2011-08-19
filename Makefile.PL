@@ -7,8 +7,8 @@ name 'Data-MessagePack';
 all_from 'lib/Data/MessagePack.pm';
 readme_from('lib/Data/MessagePack.pm');
 
-perl_version '5.008000';
-license 'perl';
+test_requires('Test::More' => 0.94); # done_testing
+test_requires('Test::Requires');
 
 tests 't/*.t';
 recursive_author_tests('xt');
@@ -76,9 +76,6 @@ if ($Module::Install::AUTHOR) {
         File::Copy::copy($src, 't/std') or die "copy failed: $!";
     }
 }
-
-requires 'Test::More' => 0.94; # done_testing
-test_requires('Test::Requires');
 
 test_with_env( test_pp => PERL_DATA_MESSAGEPACK => 'pp' );
 
