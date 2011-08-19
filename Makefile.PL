@@ -79,7 +79,7 @@ if ($Module::Install::AUTHOR) {
 
 test_with_env( test_pp => PERL_DATA_MESSAGEPACK => 'pp' );
 
-repository('http://github.com/msgpack/msgpack');
+repository('http://github.com/msgpack/msgpack-perl');
 WriteAll;
 
 # copied from Makefile.PL in Text::Xslate.
