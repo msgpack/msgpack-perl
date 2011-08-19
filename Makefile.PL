@@ -13,7 +13,7 @@ license 'perl';
 tests 't/*.t';
 recursive_author_tests('xt');
 
-
+my $use_xs = 0;
 if ( $] >= 5.008005 and want_xs() ) {
     my $has_c99 = c99_available(); # msgpack C library requires C99.
 
@@ -27,6 +27,7 @@ if ( $] >= 5.008005 and want_xs() ) {
         if($Module::Install::AUTHOR) {
             postamble qq{test :: test_pp\n\n};
         }
+        $use_xs = 1;
     }
     else {
         print <<NOT_SUPPORT_C99;
@@ -38,7 +39,8 @@ NOT_SUPPORT_C99
 
     }
 }
-else {
+
+if(!$use_xs) {
     print "configure PP version\n\n";
     requires 'Math::BigInt' => 1.89; # old versions of BigInt were broken
 }
@@ -81,7 +83,6 @@ test_requires('Test::Requires');
 test_with_env( test_pp => PERL_DATA_MESSAGEPACK => 'pp' );
 
 repository('http://github.com/msgpack/msgpack');
-auto_include;
 WriteAll;
 
 # copied from Makefile.PL in Text::Xslate.
