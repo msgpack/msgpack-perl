@@ -4,7 +4,7 @@ use warnings;
 use Test::More;
 use Data::MessagePack;
 
-$Data::MessagePack::Canonical = 1;
+my $mp = Data::MessagePack->new(canonical => 1);
 
 my $data = {
 	'foo' => {
@@ -18,11 +18,11 @@ my $data = {
 	}
 };
 
-my $packed1 = +Data::MessagePack->pack($data);
-my $packed2 = +Data::MessagePack->pack(Data::MessagePack->unpack($packed1));
-my $packed3 = +Data::MessagePack->pack(Data::MessagePack->unpack($packed2));
-my $packed4 = +Data::MessagePack->pack(Data::MessagePack->unpack($packed3));
-my $packed5 = +Data::MessagePack->pack(Data::MessagePack->unpack($packed4));
+my $packed1 = $mp->pack($data);
+my $packed2 = $mp->pack($mp->unpack($packed1));
+my $packed3 = $mp->pack($mp->unpack($packed2));
+my $packed4 = $mp->pack($mp->unpack($packed3));
+my $packed5 = $mp->pack($mp->unpack($packed4));
 
 is $packed1, $packed2;
 is $packed1, $packed3;

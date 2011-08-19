@@ -123,11 +123,7 @@ BEGIN {
 
     # fixin package symbols
     no warnings 'once';
-    sub pack   :method;
-    sub unpack :method;
-    *Data::MessagePack::pack   = \&pack;
-    *Data::MessagePack::unpack = \&unpack;
-
+    @Data::MessagePack::ISA           = qw(Data::MessagePack::PP);
     @Data::MessagePack::Unpacker::ISA = qw(Data::MessagePack::PP::Unpacker);
 
     *true  = \&Data::MessagePack::true;
@@ -146,14 +142,22 @@ sub _unexpected {
 our $_max_depth;
 
 sub pack :method {
+    my($self, $data, $max_depth) = @_;
     Carp::croak('Usage: Data::MessagePack->pack($dat [,$max_depth])') if @_ < 2;
-    $_max_depth = defined $_[2] ? $_[2] : 512; # init
-    return _pack( $_[1] );
+    $_max_depth = defined $max_depth ? $max_depth : 512; # init
+
+    if(not ref $self) {
+        $self = $self->new(
+            prefer_integer => $Data::MessagePack::PreferInteger || 0,
+            canonical      => $Data::MessagePack::Canonical     || 0,
+        );
+    }
+    return $self->_pack( $data );
 }
 
 
 sub _pack {
-    my ( $value ) = @_;
+    my ( $self, $value ) = @_;
 
     local $_max_depth = $_max_depth - 1;
 
@@ -171,7 +175,7 @@ sub _pack {
             : $num < 2 ** 32 - 1 ? CORE::pack( 'CN', 0xdd,  $num )
             : _unexpected("number %d", $num)
         ;
-        return join( '', $header, map { _pack( $_ ) } @$value );
+        return join( '', $header, map { $self->_pack( $_ ) } @$value );
     }
 
     elsif ( ref($value) eq 'HASH' ) {
@@ -183,10 +187,10 @@ sub _pack {
             : _unexpected("number %d", $num)
         ;
 
-        if ($Data::MessagePack::Canonical) {
-            return join( '', $header, map { _pack( $_ ), _pack($value->{$_}) } sort { $a cmp $b } keys %$value );
+        if ($self->{canonical}) {
+            return join( '', $header, map { $self->_pack( $_ ), $self->_pack($value->{$_}) } sort { $a cmp $b } keys %$value );
         } else {
-            return join( '', $header, map { _pack( $_ ) } %$value );
+            return join( '', $header, map { $self->_pack( $_ ) } %$value );
         }
     }
 
@@ -218,16 +222,16 @@ sub _pack {
     }
     elsif ( $flags & B::SVf_POK ) { # raw / check needs before dboule
 
-        if ( $Data::MessagePack::PreferInteger ) {
+        if ( $self->{prefer_integer} ) {
             if ( $value =~ /^-?[0-9]+$/ ) { # ok?
                 # checks whether $value is in (u)int32
                 my $ivalue = 0 + $value;
                 if (!(
                        $ivalue > 0xFFFFFFFF
-                    or $ivalue < '-'.0x80000000 # for XS compat
+                    or $ivalue < ('-' . 0x80000000) # for XS compat
                     or $ivalue != B::svref_2object(\$ivalue)->int_value
                 )) {
-                    return _pack( $ivalue );
+                    return $self->_pack( $ivalue );
                 }
                 # fallthrough
             }

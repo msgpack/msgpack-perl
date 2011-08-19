@@ -12,10 +12,14 @@
 #define msgpack_pack_inline_func_cint(name) \
     static inline void msgpack_pack ## name
 
+// serialization context
 typedef struct {
     char *cur;       /* SvPVX (sv) + current output position */
     const char *end; /* SvEND (sv) */
     SV *sv;          /* result scalar */
+
+    bool prefer_int;
+    bool canonical;
 } enc_t;
 
 STATIC_INLINE void
@@ -107,12 +111,12 @@ void init_Data__MessagePack_pack(pTHX_ bool const cloning) {
         MY_CXT_CLONE;
     }
 
-    SV* var = get_sv("Data::MessagePack::" DMP_PREF_INT, TRUE);
+    SV* var = get_sv("Data::MessagePack::" DMP_PREF_INT, GV_ADDMULTI);
     sv_magicext(var, NULL, PERL_MAGIC_ext, &dmp_config_vtbl,
             DMP_PREF_INT, 0);
     SvSETMAGIC(var);
 
-    var = get_sv("Data::MessagePack::" DMP_CANONICAL, TRUE);
+    var = get_sv("Data::MessagePack::" DMP_CANONICAL, GV_ADDMULTI);
     sv_magicext(var, NULL, PERL_MAGIC_ext, &dmp_config_vtbl,
             DMP_CANONICAL, 0);
     SvSETMAGIC(var);
@@ -182,11 +186,10 @@ STATIC_INLINE void _msgpack_pack_sv(enc_t* const enc, SV* const sv, int const de
     SvGETMAGIC(sv);
 
     if (SvPOKp(sv)) {
-        dMY_CXT;
         STRLEN const len     = SvCUR(sv);
         const char* const pv = SvPVX_const(sv);
 
-        if (MY_CXT.prefer_int && try_int(enc, pv, len)) {
+        if (enc->prefer_int && try_int(enc, pv, len)) {
             return;
         } else {
             msgpack_pack_raw(enc, len);
@@ -247,7 +250,7 @@ STATIC_INLINE void _msgpack_pack_rv(pTHX_ enc_t *enc, SV* sv, int depth) {
 
         msgpack_pack_map(enc, count);
 
-        if (MY_CXT.canonical) {
+        if (enc->canonical) {
             AV* const keys = newAV();
             sv_2mortal((SV*)keys);
             av_extend(keys, count);
@@ -308,15 +311,34 @@ XS(xs_pack) {
         Perl_croak(aTHX_ "Usage: Data::MessagePack->pack($dat [,$max_depth])");
     }
 
+    SV* self  = ST(0);
     SV* val   = ST(1);
     int depth = 512;
-    if (items >= 3) depth = SvIV(ST(2));
+    if (items >= 3) depth = SvIVx(ST(2));
 
     enc_t enc;
     enc.sv        = sv_2mortal(newSV(INIT_SIZE));
     enc.cur       = SvPVX(enc.sv);
     enc.end       = SvEND(enc.sv);
     SvPOK_only(enc.sv);
+
+    // setup configuration
+    dMY_CXT;
+    enc.prefer_int = MY_CXT.prefer_int; // back compat
+    if(SvROK(self) && SvTYPE(SvRV(self)) == SVt_PVHV) {
+        HV* const hv = (HV*)SvRV(self);
+        SV** svp;
+
+        svp = hv_fetchs(hv, "prefer_integer", FALSE);
+        if(svp) {
+            enc.prefer_int = SvTRUE(*svp) ? true : false;
+        }
+
+        svp = hv_fetchs(hv, "canonical", FALSE);
+        if(svp) {
+            enc.canonical = SvTRUE(*svp) ? true : false;
+        }
+    }
 
     _msgpack_pack_sv(&enc, val, depth);
 

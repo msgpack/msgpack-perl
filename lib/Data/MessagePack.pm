@@ -4,8 +4,6 @@ use warnings;
 use 5.008001;
 
 our $VERSION = '0.34';
-our $PreferInteger = 0;
-our $Canonical = 0;
 
 sub true () {
     require Data::MessagePack::Boolean;
@@ -34,9 +32,25 @@ if ( !__PACKAGE__->can('pack') ) { # this idea comes from Text::Xslate
 }
 
 sub new {
-    my($class) = @_;
-    return bless {}, $class;
+    my($class, %args) = @_;
+    return bless \%args, $class;
 }
+
+foreach my $name(qw(canonical prefer_integer)) {
+    my $setter = sub {
+        my($self, $value) = @_;
+        $self->{$name} = defined($value) ? $value : 1;
+        return $self;
+    };
+    my $getter = sub {
+        my($self) = @_;
+        return $self->{$name};
+    };
+    no strict 'refs';
+    *{$name}          = $setter;
+    *{'get_' . $name} = $getter;
+}
+
 
 sub encode; *encode = __PACKAGE__->can('pack');
 sub decode; *decode = __PACKAGE__->can('unpack');
