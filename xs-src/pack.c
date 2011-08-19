@@ -62,7 +62,6 @@ dmp_append_buf(enc_t* const enc, const void* const buf, STRLEN const len)
 #define ERR_NESTING_EXCEEDED "perl structure exceeds maximum nesting level (max_depth set too low?)"
 
 #define DMP_PREF_INT  "PreferInteger"
-#define DMP_CANONICAL "Canonical"
 
 /* interpreter global variables */
 #define MY_CXT_KEY "Data::MessagePack::_pack_guts" XS_VERSION
@@ -78,9 +77,6 @@ static int dmp_config_set(pTHX_ SV* sv, MAGIC* mg) {
     assert(mg->mg_ptr);
     if(strEQ(mg->mg_ptr, DMP_PREF_INT)) {
         MY_CXT.prefer_int = SvTRUE(sv) ? true : false;
-    }
-    else if(strEQ(mg->mg_ptr, DMP_CANONICAL)) {
-        MY_CXT.canonical = SvTRUE(sv) ? true : false;
     }
     else {
         assert(0);
@@ -114,11 +110,6 @@ void init_Data__MessagePack_pack(pTHX_ bool const cloning) {
     SV* var = get_sv("Data::MessagePack::" DMP_PREF_INT, GV_ADDMULTI);
     sv_magicext(var, NULL, PERL_MAGIC_ext, &dmp_config_vtbl,
             DMP_PREF_INT, 0);
-    SvSETMAGIC(var);
-
-    var = get_sv("Data::MessagePack::" DMP_CANONICAL, GV_ADDMULTI);
-    sv_magicext(var, NULL, PERL_MAGIC_ext, &dmp_config_vtbl,
-            DMP_CANONICAL, 0);
     SvSETMAGIC(var);
 }
 
@@ -243,7 +234,6 @@ STATIC_INLINE void _msgpack_pack_rv(pTHX_ enc_t *enc, SV* sv, int depth) {
                            SvPV_nolen(sv_2mortal(newRV_inc(sv))));
         }
     } else if (svt == SVt_PVHV) {
-        dMY_CXT;
         HV* hval = (HV*)sv;
         int count = hv_iterinit(hval);
         HE* he;
