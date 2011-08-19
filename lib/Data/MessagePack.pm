@@ -109,7 +109,6 @@ If you want to get more information about the MessagePack format, please visit t
 
 =head1 METHODS
 
-
 =over
 
 =item C<< my $packed = Data::MessagePack->pack($data[, $max_depth]); >>
@@ -129,12 +128,14 @@ unpack the $msgpackstr to a MessagePack format string.
 Creates a new MessagePack instance.
 
 =item C<< $mp = $mp->prefer_integer([ $enable ]) >>
+
 =item C<< $enabled = $mp->get_prefer_integer() >>
 
 If I<$enable> is true (or missing), then the C<pack> method tries a string
 as an integer if the string looks like an integer.
 
 =item C<< $mp = $mp->canonical([ $enable ]) >>
+
 =item C<< $enabled = $mp->get_canonical() >>
 
 If I<$enable> is true (or missing), then the C<pack> method will output
@@ -142,6 +143,7 @@ packed data by sorting their keys. This is adding a comparatively high
 overhead.
 
 =item C<< $mp = $mp->utf8([ $enable ]) >>
+
 =item C<< $enabled = $mp->get_utf8() >>
 
 If I<$enable> is true (or missing), then the C<pack> method will
@@ -151,11 +153,13 @@ In other words, this property tell C<$mp> to deal with B<text strings>.
 See L<perlunifaq> for the meaning of B<text string>.
 
 =item C<< $packed = $mp->pack($data) >>
+
 =item C<< $packed = $mp->encode($data) >>
 
 Same as C<< Data::MessagePack->pack() >>, but properties are respected.
 
 =item C<< $data = $mp->unpack($data) >>
+
 =item C<< $data = $mp->decode($data) >>
 
 Same as C<< Data::MessagePack->unpack() >>, but properties are respected.
