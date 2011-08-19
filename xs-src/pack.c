@@ -170,8 +170,7 @@ STATIC_INLINE int try_int(enc_t* enc, const char *p, size_t len) {
 
 STATIC_INLINE void _msgpack_pack_rv(pTHX_ enc_t *enc, SV* sv, int depth);
 
-STATIC_INLINE void _msgpack_pack_sv(enc_t* const enc, SV* const sv, int const depth) {
-    dTHX;
+STATIC_INLINE void _msgpack_pack_sv(pTHX_ enc_t* const enc, SV* const sv, int const depth) {
     assert(sv);
     if (UNLIKELY(depth <= 0)) Perl_croak(aTHX_ ERR_NESTING_EXCEEDED);
     SvGETMAGIC(sv);
@@ -211,8 +210,8 @@ STATIC_INLINE void _msgpack_pack_sv(enc_t* const enc, SV* const sv, int const de
 
 STATIC_INLINE
 void _msgpack_pack_he(pTHX_ enc_t* enc, HV* hv, HE* he, int depth) {
-    _msgpack_pack_sv(enc, hv_iterkeysv(he),   depth);
-    _msgpack_pack_sv(enc, hv_iterval(hv, he), depth);
+    _msgpack_pack_sv(aTHX_ enc, hv_iterkeysv(he),   depth);
+    _msgpack_pack_sv(aTHX_ enc, hv_iterval(hv, he), depth);
 }
 
 STATIC_INLINE void _msgpack_pack_rv(pTHX_ enc_t *enc, SV* sv, int depth) {
@@ -271,7 +270,7 @@ STATIC_INLINE void _msgpack_pack_rv(pTHX_ enc_t *enc, SV* sv, int depth) {
         for (i=0; i<len; i++) {
             SV** svp = av_fetch(ary, i, 0);
             if (svp) {
-                _msgpack_pack_sv(enc, *svp, depth);
+                _msgpack_pack_sv(aTHX_ enc, *svp, depth);
             } else {
                 msgpack_pack_nil(enc);
             }
@@ -330,7 +329,7 @@ XS(xs_pack) {
         }
     }
 
-    _msgpack_pack_sv(&enc, val, depth);
+    _msgpack_pack_sv(aTHX_ &enc, val, depth);
 
     SvCUR_set(enc.sv, enc.cur - SvPVX (enc.sv));
     *SvEND (enc.sv) = 0; /* many xs functions expect a trailing 0 for text strings */
