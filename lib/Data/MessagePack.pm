@@ -66,8 +66,11 @@ Data::MessagePack - MessagePack serialising/deserialising
 
     use Data::MessagePack;
 
-    my $packed   = Data::MessagePack->pack($dat);
-    my $unpacked = Data::MessagePack->unpack($dat);
+    my $mp = Data::MessagePack->new();
+    $mp->canonical->utf8->prefer_integer if $needed;
+
+    my $packed   = $mp->pack($dat);
+    my $unpacked = $mp->unpack($dat);
 
 =head1 DESCRIPTION
 
@@ -106,9 +109,10 @@ If you want to get more information about the MessagePack format, please visit t
 
 =head1 METHODS
 
-=over 4
 
-=item my $packed = Data::MessagePack->pack($data[, $max_depth]);
+=over
+
+=item C<< my $packed = Data::MessagePack->pack($data[, $max_depth]); >>
 
 Pack the $data to messagepack format string.
 
@@ -116,19 +120,58 @@ This method throws an exception when the perl structure is nested more than $max
 
 Data::MessagePack->pack() throws an exception when encountering blessed object, because MessagePack is language-independent format.
 
-=item my $unpacked = Data::MessagePack->unpack($msgpackstr);
+=item C<< my $unpacked = Data::MessagePack->unpack($msgpackstr); >>
 
 unpack the $msgpackstr to a MessagePack format string.
 
+=item C<< my $mp = Data::MesssagePack->new() >>
+
+Creates a new MessagePack instance.
+
+=item C<< $mp = $mp->prefer_integer([ $enable ]) >>
+=item C<< $enabled = $mp->get_prefer_integer() >>
+
+If I<$enable> is true (or missing), then the C<pack> method tries a string
+as an integer if the string looks like an integer.
+
+=item C<< $mp = $mp->canonical([ $enable ]) >>
+=item C<< $enabled = $mp->get_canonical() >>
+
+If I<$enable> is true (or missing), then the C<pack> method will output
+packed data by sorting their keys. This is adding a comparatively high
+overhead.
+
+=item C<< $mp = $mp->utf8([ $enable ]) >>
+=item C<< $enabled = $mp->get_utf8() >>
+
+If I<$enable> is true (or missing), then the C<pack> method will
+apply C<utf8::encode()> to all the string values.
+
+In other words, this property tell C<$mp> to deal with B<text strings>.
+See L<perlunifaq> for the meaning of B<text string>.
+
+=item C<< $packed = $mp->pack($data) >>
+=item C<< $packed = $mp->encode($data) >>
+
+Same as C<< Data::MessagePack->pack() >>, but properties are respected.
+
+=item C<< $data = $mp->unpack($data) >>
+=item C<< $data = $mp->decode($data) >>
+
+Same as C<< Data::MessagePack->unpack() >>, but properties are respected.
+
 =back
 
-=head1 Configuration Variables
+=head1 Configuration Variables (DEPRECATED)
 
 =over 4
 
 =item $Data::MessagePack::PreferInteger
 
 Packs a string as an integer, when it looks like an integer.
+
+This variable is B<deprecated>.
+Use C<< $msgpack->prefer_integer >> property instead.
 
 =back
 
@@ -187,12 +230,6 @@ buffers while some other bindings (such as Ruby binding) does. This limitation
 will astonish those who try to unpack byte streams with an arbitrary buffer size
 (e.g. C<< while(read($socket, $buffer, $arbitrary_buffer_size)) { ... } >>).
 We should implement the internal buffer for the unpacker.
-
-=item UTF8 mode
-
-Data::MessagePack::Unpacker supports utf8 mode, which decodes strings
-as UTF8-8. << Data::MessagePack->unpack >> should support utf8 mode in a
-future.
 
 =back
 
