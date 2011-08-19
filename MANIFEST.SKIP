@@ -7,7 +7,7 @@
 ^#
 \.old$
 \.swp$
-~$
+\.bak$
 ^blib/
 ^pm_to_blib
 ^MakeMaker-\d
@@ -28,3 +28,5 @@
 ^Data-MessagePack-[0-9.]+/
 ^\.testenv/test_pp.pl
 ^ppport.h$
+^msgpack
+

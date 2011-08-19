@@ -21,6 +21,7 @@ if ( $] >= 5.008005 and want_xs() ) {
         requires_c99();
         use_xshelper();
         cc_warnings;
+        cc_include_paths('include');
         cc_src_paths('xs-src');
 
         if($Module::Install::AUTHOR) {
@@ -50,17 +51,27 @@ clean_files qw{
     cover_db
 };
 
-# copy modules
-if ($Module::Install::AUTHOR && -d File::Spec->catfile('..', 'msgpack')) {
-    mkdir 'msgpack' unless -d 'msgpack';
-    require File::Copy;
-    for my $src (<../msgpack/*.h>) {
-        File::Copy::copy($src, 'msgpack/') or die "copy failed: $!";
+if ($Module::Install::AUTHOR) {
+    print "AuthorMode: copy modules\n";
+    if(not -d 'msgpack') {
+        system 'git', 'submodule', 'init';
+        system 'git', 'submodule', 'update';
     }
 
-    mkdir 't/std';
-    for my $data(<../test/*.{json,mpac}>) {
-        File::Copy::copy($data, 't/std') or die "copy failed: $!";
+    require File::Path;
+    require File::Copy;
+
+    File::Path::rmtree(qw(include t/std));
+    File::Path::mkpath(qw(include/msgpack t/std));
+
+    for my $src (<msgpack/msgpack/*.h>) {
+        print "AuthorMode: copy $src to include/msgpack\n";
+        File::Copy::copy($src, 'include/msgpack') or die "copy failed: $!";
+    }
+
+    for my $src(<msgpack/test/*.{json,mpac}>) {
+        print "AuthorMode: copy $src to t/std/\n";
+        File::Copy::copy($src, 't/std') or die "copy failed: $!";
     }
 }
 
