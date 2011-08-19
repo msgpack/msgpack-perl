@@ -273,6 +273,7 @@ sub _insufficient {
 
 sub unpack :method {
     $p = 0; # init
+    $_utf8 = (ref($_[0]) && $_[0]->{utf8}) || $_utf8;
     my $data = _unpack( $_[1] );
     if($p < length($_[1])) {
         Carp::croak("Data::MessagePack->unpack: extra bytes");

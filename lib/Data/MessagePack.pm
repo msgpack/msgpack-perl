@@ -36,7 +36,7 @@ sub new {
     return bless \%args, $class;
 }
 
-foreach my $name(qw(canonical prefer_integer)) {
+foreach my $name(qw(canonical prefer_integer utf8)) {
     my $setter = sub {
         my($self, $value) = @_;
         $self->{$name} = defined($value) ? $value : 1;

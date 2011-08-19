@@ -285,8 +285,22 @@ STATIC_INLINE int template_callback_raw(unpack_user* u PERL_UNUSED_DECL, const c
 
 XS(xs_unpack) {
     dXSARGS;
+    SV* const self = ST(0);
     SV* const data = ST(1);
     size_t limit;
+
+    unpack_user u = UNPACK_USER_INIT;
+
+    // setup configuration
+    if(SvROK(self) && SvTYPE(SvRV(self)) == SVt_PVHV) {
+        HV* const hv = (HV*)SvRV(self);
+        SV** svp;
+
+        svp = hv_fetchs(hv, "utf8", FALSE);
+        if(svp) {
+            u.utf8 = SvTRUE(*svp) ? true : false;
+        }
+    }
 
     if (items == 2) {
         limit = sv_len(data);
@@ -303,8 +317,6 @@ XS(xs_unpack) {
 
     msgpack_unpack_t mp;
     template_init(&mp);
-
-    unpack_user const u = UNPACK_USER_INIT;
     mp.user = u;
 
     size_t from = 0;
