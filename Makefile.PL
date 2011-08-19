@@ -63,8 +63,8 @@ if ($Module::Install::AUTHOR) {
     require File::Path;
     require File::Copy;
 
-    File::Path::rmtree(qw(include t/std));
-    File::Path::mkpath(qw(include/msgpack t/std));
+    File::Path::rmtree([qw(include t/std)]);
+    File::Path::mkpath([qw(include/msgpack t/std)]);
 
     for my $src (<msgpack/msgpack/*.h>) {
         print "AuthorMode: copy $src to include/msgpack\n";
