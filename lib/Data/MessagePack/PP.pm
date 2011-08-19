@@ -202,25 +202,7 @@ sub _pack {
     my $b_obj = B::svref_2object( \$value );
     my $flags = $b_obj->FLAGS;
 
-    if ( $flags & ( B::SVf_IOK | B::SVp_IOK ) ) {
-
-        if ($value >= 0) {
-            return    $value <= 127 ?    CORE::pack 'C',        $value
-                    : $value < 2 ** 8 ?  CORE::pack 'CC', 0xcc, $value
-                    : $value < 2 ** 16 ? CORE::pack 'Cn', 0xcd, $value
-                    : $value < 2 ** 32 ? CORE::pack 'CN', 0xce, $value
-                    : pack_uint64( $value );
-        }
-        else {
-            return    -$value <= 32 ?      CORE::pack 'C', ($value & 255)
-                    : -$value <= 2 **  7 ? CORE::pack 'Cc', 0xd0, $value
-                    : -$value <= 2 ** 15 ? CORE::pack 'Cn', 0xd1, $value
-                    : -$value <= 2 ** 31 ? CORE::pack 'CN', 0xd2, $value
-                    : pack_int64( $value );
-        }
-
-    }
-    elsif ( $flags & B::SVf_POK ) { # raw / check needs before dboule
+    if ( $flags & B::SVp_POK ) { # raw / check needs before dboule
 
         if ( $self->{prefer_integer} ) {
             if ( $value =~ /^-?[0-9]+$/ ) { # ok?
@@ -251,7 +233,23 @@ sub _pack {
         return $header . $value;
 
     }
-    elsif ( $flags & ( B::SVf_NOK | B::SVp_NOK ) ) { # double only
+    if ( $flags & B::SVp_IOK ) {
+        if ($value >= 0) {
+            return    $value <= 127 ?    CORE::pack 'C',        $value
+                    : $value < 2 ** 8 ?  CORE::pack 'CC', 0xcc, $value
+                    : $value < 2 ** 16 ? CORE::pack 'Cn', 0xcd, $value
+                    : $value < 2 ** 32 ? CORE::pack 'CN', 0xce, $value
+                    : pack_uint64( $value );
+        }
+        else {
+            return    -$value <= 32 ?      CORE::pack 'C', ($value & 255)
+                    : -$value <= 2 **  7 ? CORE::pack 'Cc', 0xd0, $value
+                    : -$value <= 2 ** 15 ? CORE::pack 'Cn', 0xd1, $value
+                    : -$value <= 2 ** 31 ? CORE::pack 'CN', 0xd2, $value
+                    : pack_int64( $value );
+        }
+    }
+    elsif ( $flags & B::SVp_NOK ) { # double only
         return pack_double( $value );
     }
     else {
