@@ -97,10 +97,15 @@ MGVTBL dmp_config_vtbl = {
 #endif
 };
 
-void init_Data__MessagePack_pack(pTHX_ bool const cloning PERL_UNUSED_DECL) {
-    MY_CXT_INIT;
-    MY_CXT.prefer_int = false;
-    MY_CXT.canonical  = false;
+void init_Data__MessagePack_pack(pTHX_ bool const cloning) {
+    if(!cloning) {
+        MY_CXT_INIT;
+        MY_CXT.prefer_int = false;
+        MY_CXT.canonical  = false;
+    }
+    else {
+        MY_CXT_CLONE;
+    }
 
     SV* var = get_sv("Data::MessagePack::" DMP_PREF_INT, TRUE);
     sv_magicext(var, NULL, PERL_MAGIC_ext, &dmp_config_vtbl,

@@ -36,14 +36,15 @@ void init_Data__MessagePack_unpack(pTHX_ bool const cloning) {
     // booleans are load on demand (lazy load).
     if(!cloning) {
         MY_CXT_INIT;
-        MY_CXT.msgpack_true  = NULL;
-        MY_CXT.msgpack_false = NULL;
+        PERL_UNUSED_VAR(MY_CXT);
     }
     else {
         MY_CXT_CLONE;
-        MY_CXT.msgpack_true  = NULL;
-        MY_CXT.msgpack_false = NULL;
     }
+
+    dMY_CXT;
+    MY_CXT.msgpack_true  = NULL;
+    MY_CXT.msgpack_false = NULL;
 }
 
 
