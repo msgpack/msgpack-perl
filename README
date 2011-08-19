@@ -4,8 +4,11 @@ NAME
 SYNOPSIS
         use Data::MessagePack;
 
-        my $packed   = Data::MessagePack->pack($dat);
-        my $unpacked = Data::MessagePack->unpack($dat);
+        my $mp = Data::MessagePack->new();
+        $mp->canonical->utf8->prefer_integer if $needed;
+
+        my $packed   = $mp->pack($dat);
+        my $unpacked = $mp->unpack($dat);
 
 DESCRIPTION
     This module converts Perl data structures to MessagePack and vice versa.
@@ -34,7 +37,7 @@ ABOUT MESSAGEPACK FORMAT
     visit to <http://msgpack.org/>.
 
 METHODS
-    my $packed = Data::MessagePack->pack($data[, $max_depth]);
+    "my $packed = Data::MessagePack->pack($data[, $max_depth]);"
         Pack the $data to messagepack format string.
 
         This method throws an exception when the perl structure is nested
@@ -44,12 +47,42 @@ METHODS
         Data::MessagePack->pack() throws an exception when encountering
         blessed object, because MessagePack is language-independent format.
 
-    my $unpacked = Data::MessagePack->unpack($msgpackstr);
+    "my $unpacked = Data::MessagePack->unpack($msgpackstr);"
         unpack the $msgpackstr to a MessagePack format string.
 
-Configuration Variables
+    "my $mp = Data::MesssagePack->new()"
+        Creates a new MessagePack instance.
+
+    "$mp = $mp->prefer_integer([ $enable ])" =item "$enabled =
+    $mp->get_prefer_integer()"
+        If *$enable* is true (or missing), then the "pack" method tries a
+        string as an integer if the string looks like an integer.
+
+    "$mp = $mp->canonical([ $enable ])" =item "$enabled =
+    $mp->get_canonical()"
+        If *$enable* is true (or missing), then the "pack" method will
+        output packed data by sorting their keys. This is adding a
+        comparatively high overhead.
+
+    "$mp = $mp->utf8([ $enable ])" =item "$enabled = $mp->get_utf8()"
+        If *$enable* is true (or missing), then the "pack" method will apply
+        "utf8::encode()" to all the string values.
+
+        In other words, this property tell $mp to deal with text strings.
+        See perlunifaq for the meaning of text string.
+
+    "$packed = $mp->pack($data)" =item "$packed = $mp->encode($data)"
+        Same as "Data::MessagePack->pack()", but properties are respected.
+
+    "$data = $mp->unpack($data)" =item "$data = $mp->decode($data)"
+        Same as "Data::MessagePack->unpack()", but properties are respected.
+
+Configuration Variables (DEPRECATED)
     $Data::MessagePack::PreferInteger
         Packs a string as an integer, when it looks like an integer.
+
+        This variable is deprecated. Use "$msgpack->prefer_integer" property
+        instead.
 
 SPEED
     This is a result of benchmark/serialize.pl and benchmark/deserialize.pl
@@ -101,11 +134,6 @@ TODO
         byte streams with an arbitrary buffer size (e.g.
         "while(read($socket, $buffer, $arbitrary_buffer_size)) { ... }"). We
         should implement the internal buffer for the unpacker.
-
-    UTF8 mode
-        Data::MessagePack::Unpacker supports utf8 mode, which decodes
-        strings as UTF8-8. << Data::MessagePack->unpack >> should support
-        utf8 mode in a future.
 
 AUTHORS
     Tokuhiro Matsuno

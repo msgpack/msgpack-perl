@@ -1,7 +1,12 @@
-0.35
+0.35_01 2011-08-19 15:27:00
 
     - address issue/20 (cho45): Data::MessagePack did not finish correctly
       when was given devided packed data
+    - address pull-req/82 (cho45): canonical mode like JSON.pm
+    - added JSON.pm-compat interface
+    - added utf8 mode to apply utf8::decode() when unpacking
+    - deprecated $PreferInteger; use D::MP->new->prefer_integer
+    - repository is now https://github.com/msgpack/msgpack-perl
 
 0.34
 
