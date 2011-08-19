@@ -29,4 +29,5 @@
 ^\.testenv/test_pp.pl
 ^ppport.h$
 ^msgpack
+MessagePack\.c$
 
