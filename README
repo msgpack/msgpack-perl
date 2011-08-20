@@ -53,28 +53,31 @@ METHODS
     "my $mp = Data::MesssagePack->new()"
         Creates a new MessagePack instance.
 
-    "$mp = $mp->prefer_integer([ $enable ])" =item "$enabled =
-    $mp->get_prefer_integer()"
+    "$mp = $mp->prefer_integer([ $enable ])"
+    "$enabled = $mp->get_prefer_integer()"
         If *$enable* is true (or missing), then the "pack" method tries a
         string as an integer if the string looks like an integer.
 
-    "$mp = $mp->canonical([ $enable ])" =item "$enabled =
-    $mp->get_canonical()"
+    "$mp = $mp->canonical([ $enable ])"
+    "$enabled = $mp->get_canonical()"
         If *$enable* is true (or missing), then the "pack" method will
         output packed data by sorting their keys. This is adding a
         comparatively high overhead.
 
-    "$mp = $mp->utf8([ $enable ])" =item "$enabled = $mp->get_utf8()"
+    "$mp = $mp->utf8([ $enable ])"
+    "$enabled = $mp->get_utf8()"
         If *$enable* is true (or missing), then the "pack" method will apply
         "utf8::encode()" to all the string values.
 
         In other words, this property tell $mp to deal with text strings.
         See perlunifaq for the meaning of text string.
 
-    "$packed = $mp->pack($data)" =item "$packed = $mp->encode($data)"
+    "$packed = $mp->pack($data)"
+    "$packed = $mp->encode($data)"
         Same as "Data::MessagePack->pack()", but properties are respected.
 
-    "$data = $mp->unpack($data)" =item "$data = $mp->decode($data)"
+    "$data = $mp->unpack($data)"
+    "$data = $mp->decode($data)"
         Same as "Data::MessagePack->unpack()", but properties are respected.
 
 Configuration Variables (DEPRECATED)
