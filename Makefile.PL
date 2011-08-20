@@ -13,6 +13,10 @@ test_requires('Test::Requires');
 tests 't/*.t';
 recursive_author_tests('xt');
 
+if ($Module::Install::AUTHOR) {
+    init_msgpack();
+}
+
 my $use_xs = 0;
 if ( $] >= 5.008005 and want_xs() ) {
     my $has_c99 = c99_available(); # msgpack C library requires C99.
@@ -45,6 +49,10 @@ if(!$use_xs) {
     requires 'Math::BigInt' => 1.89; # old versions of BigInt were broken
 }
 
+test_with_env( test_pp => PERL_DATA_MESSAGEPACK => 'pp' );
+
+repository('http://github.com/msgpack/msgpack-perl');
+
 clean_files qw{
     *.stackdump
     *.gcov *.gcda *.gcno
@@ -53,33 +61,6 @@ clean_files qw{
     cover_db
 };
 
-if ($Module::Install::AUTHOR) {
-    print "AuthorMode: copy modules\n";
-    if(not -d 'msgpack') {
-        system 'git', 'submodule', 'init';
-        system 'git', 'submodule', 'update';
-    }
-
-    require File::Path;
-    require File::Copy;
-
-    File::Path::rmtree([qw(include t/std)]);
-    File::Path::mkpath([qw(include/msgpack t/std)]);
-
-    for my $src (<msgpack/msgpack/*.h>) {
-        print "AuthorMode: copy $src to include/msgpack\n";
-        File::Copy::copy($src, 'include/msgpack') or die "copy failed: $!";
-    }
-
-    for my $src(<msgpack/test/*.{json,mpac}>) {
-        print "AuthorMode: copy $src to t/std/\n";
-        File::Copy::copy($src, 't/std') or die "copy failed: $!";
-    }
-}
-
-test_with_env( test_pp => PERL_DATA_MESSAGEPACK => 'pp' );
-
-repository('http://github.com/msgpack/msgpack-perl');
 WriteAll;
 
 # copied from Makefile.PL in Text::Xslate.
@@ -119,3 +100,31 @@ sub test_with_env {
             . qq{testall :: $name\n\n};
     return;
 }
+
+sub init_msgpack {
+    print "AuthorMode: copy modules\n";
+    if(not -d 'include') {
+        system 'git', 'submodule', 'init';
+        system 'git', 'submodule', 'update';
+    }
+    else {
+        system 'git', 'submodule', 'sync';
+    }
+
+    require File::Path;
+    require File::Copy;
+
+    File::Path::rmtree([qw(include t/std)]);
+    File::Path::mkpath([qw(include/msgpack t/std)]);
+
+    for my $src (<msgpack/msgpack/*.h>) {
+        print "AuthorMode: copy $src to include/msgpack\n";
+        File::Copy::copy($src, 'include/msgpack') or die "copy failed: $!";
+    }
+
+    for my $src(<msgpack/test/*.{json,mpac}>) {
+        print "AuthorMode: copy $src to t/std/\n";
+        File::Copy::copy($src, 't/std') or die "copy failed: $!";
+    }
+}
+
