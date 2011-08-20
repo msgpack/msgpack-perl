@@ -23,6 +23,7 @@ use Encode qw(encode decode);
 
     my $s = $mp->unpack( $mp->pack($latin1) );
     is $s, $latin1;
+    is ord($s), ord($latin1);
 }
 
 
