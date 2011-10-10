@@ -126,5 +126,8 @@ sub init_msgpack {
         print "AuthorMode: copy $src to t/std/\n";
         File::Copy::copy($src, 't/std') or die "copy failed: $!";
     }
+
+    print "paching for arm-oabi\n";
+    system 'git apply < arm-oabi.patch';
 }
 
