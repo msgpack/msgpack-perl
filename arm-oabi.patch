@@ -1,0 +1,33 @@
+diff --git a/include/msgpack/pack_template.h b/include/msgpack/pack_template.h
+index 53c0aaa..65c959d 100644
+--- a/include/msgpack/pack_template.h
++++ b/include/msgpack/pack_template.h
+@@ -646,7 +646,12 @@ msgpack_pack_inline_func(_double)(msgpack_pack_user x, double d)
+ 	union { double f; uint64_t i; } mem;
+ 	mem.f = d;
+ 	unsigned char buf[9];
+-	buf[0] = 0xcb; _msgpack_store64(&buf[1], mem.i);
++	buf[0] = 0xcb;
++#if defined(__arm__) && !(__ARM_EABI__) // arm-oabi
++    // https://github.com/msgpack/msgpack-perl/pull/1
++    mem.i = (mem.i & 0xFFFFFFFFUL) << 32UL | (mem.i >> 32UL);
++#endif
++    _msgpack_store64(&buf[1], mem.i);
+ 	msgpack_pack_append_buffer(x, buf, 9);
+ }
+ 
+diff --git a/include/msgpack/unpack_template.h b/include/msgpack/unpack_template.h
+index 0fbfbb7..711b163 100644
+--- a/include/msgpack/unpack_template.h
++++ b/include/msgpack/unpack_template.h
+@@ -263,6 +263,10 @@ msgpack_unpack_func(int, _execute)(msgpack_unpack_struct(_context)* ctx, const c
+ 			case CS_DOUBLE: {
+ 					union { uint64_t i; double f; } mem;
+ 					mem.i = _msgpack_load64(uint64_t,n);
++#if defined(__arm__) && !(__ARM_EABI__) // arm-oabi
++                    // https://github.com/msgpack/msgpack-perl/pull/1
++                    mem.i = (mem.i & 0xFFFFFFFFUL) << 32UL | (mem.i >> 32UL);
++#endif
+ 					push_fixed_value(_double, mem.f); }
+ 			case CS_UINT_8:
+ 				push_fixed_value(_uint8, *(uint8_t*)n);
