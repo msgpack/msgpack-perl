@@ -30,6 +30,8 @@ no warnings; # i need this, i need this.
     'ca 00 00 00 00' => 0.0, # float
     'ca 40 2c cc cd' => unpack('f', pack 'f', 2.7),
 
+    'cb 3f f0 00 00 00 00 00 00' => 1.0, # double
+
     'd2 80 00 00 01' => '-2147483647', # int32_t
     'ce 80 00 00 01' => '2147483649',  # uint32_t
 
