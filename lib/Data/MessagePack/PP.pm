@@ -6,6 +6,7 @@ no warnings 'recursion';
 
 use Carp ();
 use B ();
+use Config;
 
 # See also
 # http://redmine.msgpack.org/projects/msgpack/wiki/FormatSpec
@@ -46,11 +47,25 @@ BEGIN {
     *unpack_uint16 = sub { return unpack 'n', substr( $_[0], $_[1], 2 ) };
     *unpack_uint32 = sub { return unpack 'N', substr( $_[0], $_[1], 4 ) };
 
+    # For ARM OABI
+    my $bo_is_me = unpack ( 'd', "\x00\x00\xf0\x3f\x00\x00\x00\x00") == 1;
+    my $pack_double_oabi;
+    my $unpack_double_oabi;
+
     # for pack and unpack compatibility
     if ( $] < 5.010 ) {
-        # require $Config{byteorder}; my $bo_is_le = ( $Config{byteorder} =~ /^1234/ );
-        # which better?
-        my $bo_is_le = unpack ( 'd', "\x00\x00\x00\x00\x00\x00\xf0\x3f") == 1; # 1.0LE
+        my $bo_is_le = ( $Config{byteorder} =~ /^1234/ );
+
+        if ($bo_is_me) {
+            $pack_double_oabi = sub {
+                my @v = unpack( 'V2', pack( 'd', $_[0] ) );
+                return pack 'CN2', 0xcb, @v[0,1];
+            };
+            $unpack_double_oabi = sub {
+                my @v = unpack( 'V2', substr( $_[0], $_[1], 8 ) );
+                return unpack( 'd', pack( 'N2', @v[0,1] ) );
+            };
+        }
 
         *unpack_int16  = sub {
             my $v = unpack 'n', substr( $_[0], $_[1], 2 );
@@ -72,7 +87,7 @@ BEGIN {
                 my @v = unpack( 'V2', pack( 'q', $_[0] ) );
                 return pack 'CN2', 0xd3, @v[1,0];
             };
-            *pack_double = sub {
+            *pack_double = $pack_double_oabi || sub {
                 my @v = unpack( 'V2', pack( 'd', $_[0] ) );
                 return pack 'CN2', 0xcb, @v[1,0];
             };
@@ -81,7 +96,7 @@ BEGIN {
                 my @v = unpack( 'v2', substr( $_[0], $_[1], 4 ) );
                 return unpack( 'f', pack( 'n2', @v[1,0] ) );
             };
-            *unpack_double = sub {
+            *unpack_double = $unpack_double_oabi || sub {
                 my @v = unpack( 'V2', substr( $_[0], $_[1], 8 ) );
                 return unpack( 'd', pack( 'N2', @v[1,0] ) );
             };
@@ -98,22 +113,36 @@ BEGIN {
         else { # big endian
             *pack_uint64   = sub { return pack 'CQ', 0xcf, $_[0]; };
             *pack_int64    = sub { return pack 'Cq', 0xd3, $_[0]; };
-            *pack_double   = sub { return pack 'Cd', 0xcb, $_[0]; };
+            *pack_double   = $pack_double_oabi || sub { return pack 'Cd', 0xcb, $_[0]; };
 
             *unpack_float  = sub { return unpack( 'f', substr( $_[0], $_[1], 4 ) ); };
-            *unpack_double = sub { return unpack( 'd', substr( $_[0], $_[1], 8 ) ); };
+            *unpack_double = $unpack_double_oabi || sub { return unpack( 'd', substr( $_[0], $_[1], 8 ) ); };
             *unpack_int64  = $unpack_int64_slow  || sub { unpack 'q', substr( $_[0], $_[1], 8 ); };
             *unpack_uint64 = $unpack_uint64_slow || sub { unpack 'Q', substr( $_[0], $_[1], 8 ); };
         }
     }
     else { # 5.10.0 or later
+        if ($bo_is_me) {
+            $pack_double_oabi = sub {
+                my @v = unpack('V2' , pack('d', $_[0]));
+                my $d = unpack('d', pack('V2', @v[1,0]));
+                return pack 'Cd>', 0xcb, $d;
+            };
+            $unpack_double_oabi = sub {
+                my $first_word  = substr($_[0], $_[1], 4);
+                my $second_word = substr($_[0], $_[1] + 4, 4);
+                my $d_bin = $second_word . $first_word;
+                return unpack( 'd>', $d_bin );
+            };
+        }
+
         # pack_int64/uint64 are used only when the perl support quad types
         *pack_uint64   = sub { return pack 'CQ>', 0xcf, $_[0]; };
         *pack_int64    = sub { return pack 'Cq>', 0xd3, $_[0]; };
-        *pack_double   = sub { return pack 'Cd>', 0xcb, $_[0]; };
+        *pack_double   = $pack_double_oabi || sub { return pack 'Cd>', 0xcb, $_[0]; };
 
         *unpack_float  = sub { return unpack( 'f>', substr( $_[0], $_[1], 4 ) ); };
-        *unpack_double = sub { return unpack( 'd>', substr( $_[0], $_[1], 8 ) ); };
+        *unpack_double = $unpack_double_oabi || sub { return unpack( 'd>', substr( $_[0], $_[1], 8 ) ); };
         *unpack_int16  = sub { return unpack( 'n!', substr( $_[0], $_[1], 2 ) ); };
         *unpack_int32  = sub { return unpack( 'N!', substr( $_[0], $_[1], 4 ) ); };
 
