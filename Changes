@@ -1,7 +1,12 @@
 
+0.38 2011-10-10 16:17:03
+    
+    - Add tests to unpacking double - the test was missing!
+
 0.37 2011-10-10 16:08:18
 
-    - Fix issues in pack()/pack() for double on arm-oabi arch (thanks to @shohex)
+    - Resolve RT #71407: broken pack()/pack() for double on arm-oabi arch
+      (the patch contributed by @shohex)
 
 0.36 2011-08-21 14:41:51
 
