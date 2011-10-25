@@ -1,4 +1,8 @@
 
+0.38_02 2011-10-25 09:58:28
+    
+    - More informative tests
+
 0.38_01 2011-10-25 09:44:05
     
     - Add tests to reveal problems in Data::Encoder
