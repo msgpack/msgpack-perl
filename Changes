@@ -1,4 +1,8 @@
 
+0.38_01 2011-10-25 09:44:05
+    
+    - Add tests to reveal problems in Data::Encoder
+
 0.38 2011-10-10 16:17:03
     
     - Add tests to unpacking double - the test was missing!
