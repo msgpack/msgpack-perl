@@ -1,4 +1,9 @@
 
+0.39 2011-12-05 00:08:58
+    
+    - Resolve RT #72920 - packing float numbers fails on some cases,
+      e.g. after e.g. $flaot > 0
+
 0.38_02 2011-10-25 09:58:28
     
     - More informative tests
