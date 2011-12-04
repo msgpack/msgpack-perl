@@ -189,7 +189,7 @@ STATIC_INLINE void _msgpack_pack_sv(pTHX_ enc_t* const enc, SV* const sv, int co
         if(SvUOK(sv)) {
             PACK_UV(enc, SvUVX(sv));
         }
-        else if(SvIOKp(sv)) {
+        else if(SvIOK(sv)) {
             PACK_IV(enc, SvIVX(sv));
         }
         else {

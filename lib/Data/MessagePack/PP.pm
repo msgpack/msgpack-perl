@@ -262,7 +262,7 @@ sub _pack {
         return $header . $value;
 
     }
-    if ( $flags & B::SVp_IOK ) {
+    if ( $flags & B::SVf_IOK ) {
         if ($value >= 0) {
             return    $value <= 127 ?    CORE::pack 'C',        $value
                     : $value < 2 ** 8 ?  CORE::pack 'CC', 0xcc, $value
@@ -278,7 +278,7 @@ sub _pack {
                     : pack_int64( $value );
         }
     }
-    elsif ( $flags & B::SVp_NOK ) { # double only
+    elsif ( $flags & B::SVf_NOK ) { # double only
         return pack_double( $value );
     }
     else {
