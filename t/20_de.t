@@ -2,6 +2,8 @@
 # from Data::Encoder's msgpack driver tests
 use strict;
 use warnings;
+use Config;
+use if $Config{nvsize} > 8, skip_all => 'long double is not supported';
 use Test::More;
 use Data::MessagePack;
 
