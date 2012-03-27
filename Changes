@@ -1,4 +1,9 @@
 
+0.40 2012-03-28 00:37:28
+
+    - Fix $messagepack->utf8(1) behavior
+    - Fix tests on NV == long double env
+
 0.39 2011-12-05 00:08:58
     
     - Resolve RT #72920 - packing float numbers fails on some cases,
