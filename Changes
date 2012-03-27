@@ -1,4 +1,8 @@
 
+0.41 2012-03-28 01:09:44
+
+    - Revert the privous changed utf8() behavior
+
 0.40 2012-03-28 00:37:28
 
     - Fix $messagepack->utf8(1) behavior
