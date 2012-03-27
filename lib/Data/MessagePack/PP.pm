@@ -376,7 +376,12 @@ sub _unpack {
         my $s    = substr( $value, $p, $size );
         length($s) == $size or _insufficient('raw');
         $p      += $size;
-        utf8::decode($s) if $_utf8;
+        if($_utf8) {
+            utf8::decode($s);
+            if(!utf8::is_utf8($s)) { # latin-1
+                utf8::upgrade($s);
+            }
+        }
         return $s;
     }
     elsif ( $typemap[$byte] & $T_ARRAY ) {

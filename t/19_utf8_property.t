@@ -26,6 +26,13 @@ use Encode qw(encode decode);
     is ord($s), ord($latin1);
 }
 
+{
+    my $mp = Data::MessagePack->new()->utf8();
+
+    my $s = $mp->unpack( $mp->pack('foo') );
+
+    ok utf8::is_utf8($s), '(utf8-flag)';
+}
 
 done_testing;
 

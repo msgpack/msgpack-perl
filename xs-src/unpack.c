@@ -264,6 +264,7 @@ STATIC_INLINE int template_callback_raw(unpack_user* u PERL_UNUSED_DECL, const c
     *o = ((l==0) ? newSVpvs("") : newSVpvn(p, l));
     if(u->utf8) {
         sv_utf8_decode(*o);
+        if(!SvUTF8(*o)) sv_utf8_upgrade(*o);
     }
     return 0;
 }
