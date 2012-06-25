@@ -185,16 +185,13 @@ STATIC_INLINE void _msgpack_pack_sv(pTHX_ enc_t* const enc, SV* const sv, int co
             msgpack_pack_raw(enc, len);
             msgpack_pack_raw_body(enc, pv, len);
         }
-    } else if (SvNIOKp(sv)) {
+    } else if (SvNOKp(sv)) {
+        msgpack_pack_double(enc, (double)SvNVX(sv));
+    } else if (SvIOKp(sv)) {
         if(SvUOK(sv)) {
             PACK_UV(enc, SvUVX(sv));
-        }
-        else if(SvIOK(sv)) {
+        } else {
             PACK_IV(enc, SvIVX(sv));
-        }
-        else {
-            /* XXX long double is not supported yet. */
-            msgpack_pack_double(enc, (double)SvNVX(sv));
         }
     } else if (SvROK(sv)) {
         _msgpack_pack_rv(aTHX_ enc, SvRV(sv), depth-1);

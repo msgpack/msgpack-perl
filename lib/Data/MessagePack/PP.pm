@@ -262,24 +262,24 @@ sub _pack {
         return $header . $value;
 
     }
-    if ( $flags & B::SVf_IOK ) {
-        if ($value >= 0) {
+    elsif( $flags & B::SVp_NOK ) { # double only
+        return pack_double( $value );
+    }
+    elsif ( $flags & B::SVp_IOK ) {
+        if ($value >= 0) { # UV
             return    $value <= 127 ?    CORE::pack 'C',        $value
-                    : $value < 2 ** 8 ?  CORE::pack 'CC', 0xcc, $value
+                    : $value < 2 **  8 ? CORE::pack 'CC', 0xcc, $value
                     : $value < 2 ** 16 ? CORE::pack 'Cn', 0xcd, $value
                     : $value < 2 ** 32 ? CORE::pack 'CN', 0xce, $value
                     : pack_uint64( $value );
         }
-        else {
+        else { # IV
             return    -$value <= 32 ?      CORE::pack 'C', ($value & 255)
                     : -$value <= 2 **  7 ? CORE::pack 'Cc', 0xd0, $value
                     : -$value <= 2 ** 15 ? CORE::pack 'Cn', 0xd1, $value
                     : -$value <= 2 ** 31 ? CORE::pack 'CN', 0xd2, $value
                     : pack_int64( $value );
         }
-    }
-    elsif ( $flags & B::SVf_NOK ) { # double only
-        return pack_double( $value );
     }
     else {
         _unexpected("data type %s", $b_obj);
