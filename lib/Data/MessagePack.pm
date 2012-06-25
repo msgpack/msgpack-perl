@@ -237,6 +237,16 @@ We should implement the internal buffer for the unpacker.
 
 =back
 
+=head1 FAQ
+
+=over 4
+
+=item Why does Data::MessagePack have pure perl implementations?
+
+msgpack C library uses C99 feature, VC++6 does not support C99. So pure perl version is needed for VC++ users.
+
+=back
+
 =head1 AUTHORS
 
 Tokuhiro Matsuno
