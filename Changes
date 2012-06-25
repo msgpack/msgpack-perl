@@ -1,4 +1,8 @@
 
+0.42 2012-06-25 09:56:58
+
+    - fix failing to pack IV/NV with MAGIC (e.g. $$ in 5.16.0)
+
 0.41 2012-03-28 01:09:44
 
     - Revert the privous changed utf8() behavior
