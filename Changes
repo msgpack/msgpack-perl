@@ -1,3 +1,8 @@
+0.44
+
+    - do not display deprecated warnings from Data::MessagePack::Unpacker.
+      T::Xslate using it...
+
 0.43 2012-06-26T02:00:57
     
     - Data::MessagePack::Unpacker was deprecated.
