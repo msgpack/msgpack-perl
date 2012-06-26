@@ -461,7 +461,6 @@ package
     Data::MessagePack::PP::Unpacker;
 
 sub new {
-    warn "Data::MessagePack::Unpacker was deprecated. Use Data::MessagePack::Stream instead.";
     bless {
         pos  => 0,
         utf8 => 0,
@@ -485,7 +484,6 @@ sub execute_limit {
 }
 
 sub execute {
-    warn "Data::MessagePack::Unpacker was deprecated. Use Data::MessagePack::Stream instead.";
     my ( $self, $data, $offset, $limit ) = @_;
     $offset ||= 0;
     my $value = substr( $data, $offset, $limit ? $limit : length $data );
@@ -615,20 +613,17 @@ sub _count {
 
 sub data {
     my($self) = @_;
-    warn "Data::MessagePack::Unpacker was deprecated. Use Data::MessagePack::Stream instead.";
     local $Data::MessagePack::PP::_utf8 = $self->{utf8};
     return Data::MessagePack->unpack( substr($self->{buff}, 0, $self->{pos}) );
 }
 
 
 sub is_finished {
-    warn "Data::MessagePack::Unpacker was deprecated. Use Data::MessagePack::Stream instead.";
     my ( $self ) = @_;
     return $self->{is_finished};
 }
 
 sub reset :method {
-    warn "Data::MessagePack::Unpacker was deprecated. Use Data::MessagePack::Stream instead.";
     $_[0]->{buff}        = '';
     $_[0]->{pos}         = 0;
     $_[0]->{is_finished} = 0;
