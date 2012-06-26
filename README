@@ -138,6 +138,11 @@ TODO
         "while(read($socket, $buffer, $arbitrary_buffer_size)) { ... }"). We
         should implement the internal buffer for the unpacker.
 
+FAQ
+    Why does Data::MessagePack have pure perl implementations?
+        msgpack C library uses C99 feature, VC++6 does not support C99. So
+        pure perl version is needed for VC++ users.
+
 AUTHORS
     Tokuhiro Matsuno
 
