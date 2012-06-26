@@ -9,6 +9,8 @@ typedef struct {
 } my_cxt_t;
 START_MY_CXT
 
+#define UNPACKER_DEPRECATED Perl_carp("Data::MessagePack::Unpacker was deprecated. Use Data::MessagePack::Stream instead.");
+
 // context data for execute_template()
 typedef struct {
     bool finished;
@@ -344,6 +346,7 @@ XS(xs_unpack) {
 
 XS(xs_unpacker_new) {
     dXSARGS;
+    UNPACKER_DEPRECATED;
     if (items != 1) {
         Perl_croak(aTHX_ "Usage: Data::MessagePack::Unpacker->new()");
     }
@@ -367,6 +370,7 @@ XS(xs_unpacker_new) {
 
 XS(xs_unpacker_utf8) {
     dXSARGS;
+    UNPACKER_DEPRECATED;
     if (!(items == 1 || items == 2)) {
         Perl_croak(aTHX_ "Usage: $unpacker->utf8([$bool)");
     }
@@ -377,6 +381,7 @@ XS(xs_unpacker_utf8) {
 
 XS(xs_unpacker_get_utf8) {
     dXSARGS;
+    UNPACKER_DEPRECATED;
     if (items != 1) {
         Perl_croak(aTHX_ "Usage: $unpacker->get_utf8()");
     }
@@ -433,6 +438,7 @@ _execute_impl(SV* const self, SV* const data, UV const offset, UV const limit) {
 
 XS(xs_unpacker_execute) {
     dXSARGS;
+    UNPACKER_DEPRECATED;
     SV* const self = ST(0);
     SV* const data = ST(1);
     UV offset;
@@ -455,6 +461,7 @@ XS(xs_unpacker_execute) {
 
 XS(xs_unpacker_execute_limit) {
     dXSARGS;
+    UNPACKER_DEPRECATED;
     if (items != 4) {
         Perl_croak(aTHX_ "Usage: $unpacker->execute_limit(data, offset, limit)");
     }
@@ -472,6 +479,7 @@ XS(xs_unpacker_execute_limit) {
 
 XS(xs_unpacker_is_finished) {
     dXSARGS;
+    UNPACKER_DEPRECATED;
     if (items != 1) {
         Perl_croak(aTHX_ "Usage: $unpacker->is_finished()");
     }
@@ -483,6 +491,7 @@ XS(xs_unpacker_is_finished) {
 
 XS(xs_unpacker_data) {
     dXSARGS;
+    UNPACKER_DEPRECATED;
     if (items != 1) {
         Perl_croak(aTHX_ "Usage: $unpacker->data()");
     }
@@ -494,6 +503,7 @@ XS(xs_unpacker_data) {
 
 XS(xs_unpacker_reset) {
     dXSARGS;
+    UNPACKER_DEPRECATED;
     if (items != 1) {
         Perl_croak(aTHX_ "Usage: $unpacker->reset()");
     }
@@ -511,6 +521,7 @@ XS(xs_unpacker_reset) {
 
 XS(xs_unpacker_destroy) {
     dXSARGS;
+    UNPACKER_DEPRECATED;
     if (items != 1) {
         Perl_croak(aTHX_ "Usage: $unpacker->DESTROY()");
     }
