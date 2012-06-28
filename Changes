@@ -1,3 +1,7 @@
+0.45
+
+    - support tied hashes(rurban++)
+
 0.44
 
     - do not display deprecated warnings from Data::MessagePack::Unpacker.
