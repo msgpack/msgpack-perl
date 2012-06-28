@@ -79,8 +79,8 @@ This module converts Perl data structures to MessagePack and vice versa.
 =head1 ABOUT MESSAGEPACK FORMAT
 
 MessagePack is a binary-based efficient object serialization format.
-It enables to exchange structured objects between many languages like JSON.
-But unlike JSON, it is very fast and small.
+It enables to exchange structured objects between many languages like
+JSON.  But unlike JSON, it is very fast and small.
 
 =head2 ADVANTAGES
 
@@ -100,12 +100,14 @@ The MessagePack format saves memory than JSON and Storable format.
 
 =item STREAMING DESERIALIZER
 
-MessagePack supports streaming deserializer. It is useful for networking such as RPC.
-See L<Data::MessagePack::Unpacker> for details.
+MessagePack supports streaming deserializer. It is useful for
+networking such as RPC.  See L<Data::MessagePack::Unpacker> for
+details.
 
 =back
 
-If you want to get more information about the MessagePack format, please visit to L<http://msgpack.org/>.
+If you want to get more information about the MessagePack format,
+please visit to L<http://msgpack.org/>.
 
 =head1 METHODS
 
@@ -115,9 +117,13 @@ If you want to get more information about the MessagePack format, please visit t
 
 Pack the $data to messagepack format string.
 
-This method throws an exception when the perl structure is nested more than $max_depth levels(default: 512) in order to detect circular references.
+This method throws an exception when the perl structure is nested more
+than $max_depth levels(default: 512) in order to detect circular
+references.
 
-Data::MessagePack->pack() throws an exception when encountering blessed object, because MessagePack is language-independent format.
+Data::MessagePack->pack() throws an exception when encountering a
+blessed perl object, because MessagePack is a language-independent
+format.
 
 =item C<< my $unpacked = Data::MessagePack->unpack($msgpackstr); >>
 
@@ -131,8 +137,8 @@ Creates a new MessagePack instance.
 
 =item C<< $enabled = $mp->get_prefer_integer() >>
 
-If I<$enable> is true (or missing), then the C<pack> method tries a string
-as an integer if the string looks like an integer.
+If I<$enable> is true (or missing), then the C<pack> method tries a
+string as an integer if the string looks like an integer.
 
 =item C<< $mp = $mp->canonical([ $enable ]) >>
 
@@ -181,7 +187,8 @@ Use C<< $msgpack->prefer_integer >> property instead.
 
 =head1 SPEED
 
-This is a result of benchmark/serialize.pl and benchmark/deserialize.pl on my SC440(Linux 2.6.32-23-server #37-Ubuntu SMP).
+This is a result of F<benchmark/serialize.pl> and F<benchmark/deserialize.pl>
+on my SC440(Linux 2.6.32-23-server #37-Ubuntu SMP).
 (You should benchmark them with B<your> data if the speed matters, of course.)
 
     -- serialize
