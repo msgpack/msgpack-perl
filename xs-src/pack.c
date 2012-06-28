@@ -234,6 +234,12 @@ STATIC_INLINE void _msgpack_pack_rv(pTHX_ enc_t *enc, SV* sv, int depth) {
         int count = hv_iterinit(hval);
         HE* he;
 
+	if (SvTIED_mg(sv,PERL_MAGIC_tied)) {
+          count = 0;
+          while (hv_iternext (hval))
+            ++count;
+          hv_iterinit (hval);
+        }
         msgpack_pack_map(enc, count);
 
         if (enc->canonical) {
