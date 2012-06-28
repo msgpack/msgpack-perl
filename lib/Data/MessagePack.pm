@@ -70,17 +70,17 @@ Data::MessagePack - MessagePack serialising/deserialising
     $mp->canonical->utf8->prefer_integer if $needed;
 
     my $packed   = $mp->pack($dat);
-    my $unpacked = $mp->unpack($dat);
+    my $newdat   = $mp->unpack($packed);
 
 =head1 DESCRIPTION
 
-This module converts Perl data structures to MessagePack and vice versa.
+This module converts simple Perl data structures to MessagePack and vice versa.
 
 =head1 ABOUT MESSAGEPACK FORMAT
 
-MessagePack is a binary-based efficient object serialization format.
-It enables to exchange structured objects between many languages like JSON.
-But unlike JSON, it is very fast and small.
+MessagePack is a binary-based efficient data serialization format.
+It enables to exchange structured data between many languages like
+JSON.  But unlike JSON, it is very fast and small.
 
 =head2 ADVANTAGES
 
@@ -100,12 +100,14 @@ The MessagePack format saves memory than JSON and Storable format.
 
 =item STREAMING DESERIALIZER
 
-MessagePack supports streaming deserializer. It is useful for networking such as RPC.
-See L<Data::MessagePack::Unpacker> for details.
+MessagePack supports streaming deserializer. It is useful for
+networking such as RPC.  See L<Data::MessagePack::Unpacker> for
+details.
 
 =back
 
-If you want to get more information about the MessagePack format, please visit to L<http://msgpack.org/>.
+If you want to get more information about the MessagePack format,
+please visit to L<http://msgpack.org/>.
 
 =head1 METHODS
 
@@ -113,15 +115,21 @@ If you want to get more information about the MessagePack format, please visit t
 
 =item C<< my $packed = Data::MessagePack->pack($data[, $max_depth]); >>
 
-Pack the $data to messagepack format string.
+Pack the perl $data - numeric or string scalar or arrayref or hashref
+of those - to a messagepack format string.
 
-This method throws an exception when the perl structure is nested more than $max_depth levels(default: 512) in order to detect circular references.
+This method throws an exception when the perl structure is nested more
+than $max_depth levels(default: 512) in order to detect circular
+references.
 
-Data::MessagePack->pack() throws an exception when encountering blessed object, because MessagePack is language-independent format.
+Data::MessagePack->pack() throws an exception when encountering a
+blessed perl object or subroutine reference or REGEXP object, because
+MessagePack is a language-independent format.
 
-=item C<< my $unpacked = Data::MessagePack->unpack($msgpackstr); >>
+=item C<< my $unpacked = Data::MessagePack->unpack($packed); >>
 
-unpack the $msgpackstr to a MessagePack format string.
+unpack the MessagePack formatted $packed data to a new perl data scalar,
+i.e. an immediate scalar or reference.
 
 =item C<< my $mp = Data::MesssagePack->new() >>
 
@@ -131,8 +139,8 @@ Creates a new MessagePack instance.
 
 =item C<< $enabled = $mp->get_prefer_integer() >>
 
-If I<$enable> is true (or missing), then the C<pack> method tries a string
-as an integer if the string looks like an integer.
+If I<$enable> is true (or missing), then the C<pack> method tries a
+string as an integer if the string looks like an integer.
 
 =item C<< $mp = $mp->canonical([ $enable ]) >>
 
@@ -158,9 +166,16 @@ See L<perlunifaq> for the meaning of B<text string>.
 
 Same as C<< Data::MessagePack->pack() >>, but properties are respected.
 
-=item C<< $data = $mp->unpack($data) >>
+=item C<< $packed = $mp->add_crc($packed) >>
 
-=item C<< $data = $mp->decode($data) >>
+Add an optional crc checksum to the packed data at the end.
+unpack/decode will check this and report an error on data corruption.
+
+Note that the original string will be changed in place for efficiency.
+
+=item C<< $data = $mp->unpack($packed) >>
+
+=item C<< $data = $mp->decode($packed) >>
 
 Same as C<< Data::MessagePack->unpack() >>, but properties are respected.
 
@@ -181,7 +196,8 @@ Use C<< $msgpack->prefer_integer >> property instead.
 
 =head1 SPEED
 
-This is a result of benchmark/serialize.pl and benchmark/deserialize.pl on my SC440(Linux 2.6.32-23-server #37-Ubuntu SMP).
+This is a result of F<benchmark/serialize.pl> and F<benchmark/deserialize.pl>
+on my SC440(Linux 2.6.32-23-server #37-Ubuntu SMP).
 (You should benchmark them with B<your> data if the speed matters, of course.)
 
     -- serialize

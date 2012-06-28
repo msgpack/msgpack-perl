@@ -325,7 +325,9 @@ XS(xs_unpack) {
     sv_2mortal(obj);
 
     if(ret < 0) {
-        Perl_croak(aTHX_ "Data::MessagePack->unpack: parse error");
+        Perl_croak(aTHX_ ret == -2
+		   ? "Data::MessagePack->unpack: crc check error"
+		   : "Data::MessagePack->unpack: parse error");
     } else if(ret == 0) {
         Perl_croak(aTHX_ "Data::MessagePack->unpack: insufficient bytes");
     } else {
@@ -413,8 +415,9 @@ _execute_impl(SV* const self, SV* const data, UV const offset, UV const limit) {
     // ret >  0 : success
 
     if(ret < 0) {
-        Perl_croak(aTHX_
-            "Data::MessagePack::Unpacker: parse error while executing");
+	Perl_croak(aTHX_ ret == -2
+		   ? "Data::MessagePack::Unpacker: crc check failure"
+		   : "Data::MessagePack::Unpacker: parse error while executing");
     }
 
     mp->user.finished = (ret > 0) ? true : false;

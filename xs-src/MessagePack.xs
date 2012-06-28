@@ -5,6 +5,7 @@
 #endif
 
 XS(xs_pack);
+XS(xs_add_crc);
 XS(xs_unpack);
 XS(xs_unpacker_new);
 XS(xs_unpacker_utf8);
@@ -27,6 +28,7 @@ BOOT:
     init_Data__MessagePack_unpack(aTHX_ false);
 
     newXS("Data::MessagePack::pack",   xs_pack,   __FILE__);
+    newXS("Data::MessagePack::add_crc",xs_add_crc, __FILE__);
     newXS("Data::MessagePack::unpack", xs_unpack, __FILE__);
 
     newXS("Data::MessagePack::Unpacker::new",           xs_unpacker_new, __FILE__);
