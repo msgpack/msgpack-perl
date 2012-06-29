@@ -27,6 +27,10 @@ if ( $] >= 5.008005 and want_xs() ) {
         cc_warnings;
         cc_include_paths('include');
         cc_src_paths('xs-src');
+	postamble (qq{
+xs-src/pack.o : xshelper.h include/msgpack/pack_define.h include/msgpack/pack_template.h include/msgpack/sysdep.h
+xs-src/unpack.o : xshelper.h include/msgpack/unpack_define.h include/msgpack/unpack_template.h include/msgpack/sysdep.h
+});
 
         if($Module::Install::AUTHOR) {
             postamble qq{test :: test_pp\n\n};
