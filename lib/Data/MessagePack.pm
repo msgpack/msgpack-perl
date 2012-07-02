@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use 5.008001;
 
-our $VERSION = '0.46';
+our $VERSION = '0.46_01';
 
 sub true () {
     require Data::MessagePack::Boolean;

@@ -16,6 +16,7 @@ cmpthese timethese(
         json     => sub { JSON::encode_json($a) },
         storable => sub { Storable::freeze($a) },
         mp       => sub { Data::MessagePack->pack($a) },
+        mp_crc   => sub { my $p = Data::MessagePack->pack($a); Data::MessagePack->add_crc($p); },
     }
 );
 

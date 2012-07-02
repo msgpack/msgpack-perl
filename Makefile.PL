@@ -30,6 +30,7 @@ if ( $] >= 5.008005 and want_xs() ) {
 	postamble (qq{
 xs-src/pack.o : xshelper.h include/msgpack/pack_define.h include/msgpack/pack_template.h include/msgpack/sysdep.h
 xs-src/unpack.o : xshelper.h include/msgpack/unpack_define.h include/msgpack/unpack_template.h include/msgpack/sysdep.h
+xs-src/crc32.o : xshelper.h include/msgpack/sysdep.h
 });
 
         if($Module::Install::AUTHOR) {
