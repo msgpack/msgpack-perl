@@ -44,8 +44,9 @@ METHODS
         more than $max_depth levels(default: 512) in order to detect
         circular references.
 
-        Data::MessagePack->pack() throws an exception when encountering
-        blessed object, because MessagePack is language-independent format.
+        Data::MessagePack->pack() throws an exception when encountering a
+        blessed perl object, because MessagePack is a language-independent
+        format.
 
     "my $unpacked = Data::MessagePack->unpack($msgpackstr);"
         unpack the $msgpackstr to a MessagePack format string.
