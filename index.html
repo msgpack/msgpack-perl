@@ -1,0 +1,249 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>MessagePack for Perl by msgpack</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>MessagePack for Perl</h1>
+        <p>MessagePack serializer for Perl</p>
+
+        <p class="view"><a href="https://github.com/msgpack/msgpack-perl">View the Project on GitHub <small>msgpack/msgpack-perl</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/msgpack/msgpack-perl/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/msgpack/msgpack-perl/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/msgpack/msgpack-perl">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>NAME</h1>
+
+<p>Data::MessagePack - MessagePack serialising/deserialising</p>
+
+<h1>SYNOPSIS</h1>
+
+<pre><code>use Data::MessagePack;
+
+my $mp = Data::MessagePack-&gt;new();
+$mp-&gt;canonical-&gt;utf8-&gt;prefer_integer if $needed;
+
+my $packed   = $mp-&gt;pack($dat);
+my $unpacked = $mp-&gt;unpack($dat);
+</code></pre>
+
+<h1>DESCRIPTION</h1>
+
+<p>This module converts Perl data structures to MessagePack and vice versa.</p>
+
+<h1>ABOUT MESSAGEPACK FORMAT</h1>
+
+<p>MessagePack is a binary-based efficient object serialization format.
+It enables to exchange structured objects between many languages like
+JSON.  But unlike JSON, it is very fast and small.</p>
+
+<h2>ADVANTAGES</h2>
+
+<ul>
+<li>PORTABLE</li>
+</ul><p>The MessagePack format does not depend on language nor byte order.</p>
+
+<ul>
+<li>
+<p>SMALL IN SIZE</p>
+
+<p>say length(JSON::XS::encode_json({a=&gt;1, b=&gt;2}));   # =&gt; 13
+say length(Storable::nfreeze({a=&gt;1, b=&gt;2}));       # =&gt; 21
+say length(Data::MessagePack-&gt;pack({a=&gt;1, b=&gt;2})); # =&gt; 7</p>
+</li>
+</ul><p>The MessagePack format saves memory than JSON and Storable format.</p>
+
+<ul>
+<li>STREAMING DESERIALIZER</li>
+</ul><p>MessagePack supports streaming deserializer. It is useful for
+networking such as RPC.  See <a href="http://search.cpan.org/perldoc?Data::MessagePack::Unpacker">Data::MessagePack::Unpacker</a> for
+details.</p>
+
+<p>If you want to get more information about the MessagePack format,
+please visit to <a href="http://msgpack.org/">http://msgpack.org/</a>.</p>
+
+<h1>METHODS</h1>
+
+<ul>
+<li><code>my $packed = Data::MessagePack-&gt;pack($data[, $max_depth]);</code></li>
+</ul><p>Pack the $data to messagepack format string.</p>
+
+<p>This method throws an exception when the perl structure is nested more
+than $max_depth levels(default: 512) in order to detect circular
+references.</p>
+
+<p>Data::MessagePack-&gt;pack() throws an exception when encountering a
+blessed perl object, because MessagePack is a language-independent
+format.</p>
+
+<ul>
+<li><code>my $unpacked = Data::MessagePack-&gt;unpack($msgpackstr);</code></li>
+</ul><p>unpack the $msgpackstr to a MessagePack format string.</p>
+
+<ul>
+<li><code>my $mp = Data::MesssagePack-&gt;new()</code></li>
+</ul><p>Creates a new MessagePack instance.</p>
+
+<ul>
+<li><code>$mp = $mp-&gt;prefer_integer([ $enable ])</code></li>
+<li><code>$enabled = $mp-&gt;get_prefer_integer()</code></li>
+</ul><p>If <em>$enable</em> is true (or missing), then the <code>pack</code> method tries a
+string as an integer if the string looks like an integer.</p>
+
+<ul>
+<li><code>$mp = $mp-&gt;canonical([ $enable ])</code></li>
+<li><code>$enabled = $mp-&gt;get_canonical()</code></li>
+</ul><p>If <em>$enable</em> is true (or missing), then the <code>pack</code> method will output
+packed data by sorting their keys. This is adding a comparatively high
+overhead.</p>
+
+<ul>
+<li><code>$mp = $mp-&gt;utf8([ $enable ])</code></li>
+<li><code>$enabled = $mp-&gt;get_utf8()</code></li>
+</ul><p>If <em>$enable</em> is true (or missing), then the <code>pack</code> method will
+apply <code>utf8::encode()</code> to all the string values.</p>
+
+<p>In other words, this property tell <code>$mp</code> to deal with <strong>text strings</strong>.
+See <a href="http://search.cpan.org/perldoc?perlunifaq">perlunifaq</a> for the meaning of <strong>text string</strong>.</p>
+
+<ul>
+<li><code>$packed = $mp-&gt;pack($data)</code></li>
+<li><code>$packed = $mp-&gt;encode($data)</code></li>
+</ul><p>Same as <code>Data::MessagePack-&gt;pack()</code>, but properties are respected.</p>
+
+<ul>
+<li><code>$data = $mp-&gt;unpack($data)</code></li>
+<li><code>$data = $mp-&gt;decode($data)</code></li>
+</ul><p>Same as <code>Data::MessagePack-&gt;unpack()</code>, but properties are respected.</p>
+
+<h1>Configuration Variables (DEPRECATED)</h1>
+
+<ul>
+<li>$Data::MessagePack::PreferInteger</li>
+</ul><p>Packs a string as an integer, when it looks like an integer.</p>
+
+<p>This variable is <strong>deprecated</strong>.
+Use <code>$msgpack-&gt;prefer_integer</code> property instead.</p>
+
+<h1>SPEED</h1>
+
+<p>This is a result of <code>benchmark/serialize.pl</code> and <code>benchmark/deserialize.pl</code>
+on my SC440(Linux 2.6.32-23-server #37-Ubuntu SMP).
+(You should benchmark them with <strong>your</strong> data if the speed matters, of course.)</p>
+
+<pre><code>-- serialize
+JSON::XS: 2.3
+Data::MessagePack: 0.24
+Storable: 2.21
+Benchmark: running json, mp, storable for at least 1 CPU seconds...
+      json:  1 wallclock secs ( 1.00 usr +  0.01 sys =  1.01 CPU) @ 141939.60/s (n=143359)
+        mp:  1 wallclock secs ( 1.06 usr +  0.00 sys =  1.06 CPU) @ 355500.94/s (n=376831)
+  storable:  1 wallclock secs ( 1.12 usr +  0.00 sys =  1.12 CPU) @ 38399.11/s (n=43007)
+             Rate storable     json       mp
+storable  38399/s       --     -73%     -89%
+json     141940/s     270%       --     -60%
+mp       355501/s     826%     150%       --
+
+-- deserialize
+JSON::XS: 2.3
+Data::MessagePack: 0.24
+Storable: 2.21
+Benchmark: running json, mp, storable for at least 1 CPU seconds...
+      json:  0 wallclock secs ( 1.05 usr +  0.00 sys =  1.05 CPU) @ 179442.86/s (n=188415)
+        mp:  0 wallclock secs ( 1.01 usr +  0.00 sys =  1.01 CPU) @ 212909.90/s (n=215039)
+  storable:  2 wallclock secs ( 1.14 usr +  0.00 sys =  1.14 CPU) @ 114974.56/s (n=131071)
+             Rate storable     json       mp
+storable 114975/s       --     -36%     -46%
+json     179443/s      56%       --     -16%
+mp       212910/s      85%      19%       --
+</code></pre>
+
+<h1>CAVEAT</h1>
+
+<h2>Unpacking 64 bit integers</h2>
+
+<p>This module can unpack 64 bit integers even if your perl does not support them
+(i.e. where <code>perl -V:ivsize</code> is 4), but you cannot calculate these values
+unless you use <code>Math::BigInt</code>.</p>
+
+<h1>TODO</h1>
+
+<ul>
+<li>Error handling</li>
+</ul><p>MessagePack cannot deal with complex scalars such as object references,
+filehandles, and code references. We should report the errors more kindly.</p>
+
+<ul>
+<li>Streaming deserializer</li>
+</ul><p>The current implementation of the streaming deserializer does not have internal
+buffers while some other bindings (such as Ruby binding) does. This limitation
+will astonish those who try to unpack byte streams with an arbitrary buffer size
+(e.g. <code>while(read($socket, $buffer, $arbitrary_buffer_size)) { ... }</code>).
+We should implement the internal buffer for the unpacker.</p>
+
+<h1>FAQ</h1>
+
+<ul>
+<li>Why does Data::MessagePack have pure perl implementations?</li>
+</ul><p>msgpack C library uses C99 feature, VC++6 does not support C99. So pure perl version is needed for VC++ users.</p>
+
+<h1>AUTHORS</h1>
+
+<p>Tokuhiro Matsuno</p>
+
+<p>Makamaka Hannyaharamitu</p>
+
+<p>gfx</p>
+
+<h1>THANKS TO</h1>
+
+<p>Jun Kuriyama</p>
+
+<p>Dan Kogai</p>
+
+<p>FURUHASHI Sadayuki</p>
+
+<p>hanekomu</p>
+
+<p>Kazuho Oku</p>
+
+<p>shohex</p>
+
+<h1>LICENSE</h1>
+
+<p>This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.</p>
+
+<h1>SEE ALSO</h1>
+
+<p><a href="http://msgpack.org/">http://msgpack.org/</a> is the official web site for the  MessagePack format.</p>
+
+<p><a href="http://search.cpan.org/perldoc?Data::MessagePack::Unpacker">Data::MessagePack::Unpacker</a></p>
+
+<p><a href="http://search.cpan.org/perldoc?AnyEvent::MPRPC">AnyEvent::MPRPC</a></p>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/msgpack">msgpack</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
