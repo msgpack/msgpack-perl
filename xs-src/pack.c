@@ -364,7 +364,7 @@ XS(xs_add_crc) {
     enc.cur       = SvEND(val);                    /* at the end */
     enc.end       = SvPVX_const(val) + SvLEN(val); /* do not realloc buffer */
 
-    msgpack_pack_crc(aTHX_ &enc);
+    msgpack_pack_crc(&enc);
 
     SvCUR_set(enc.sv, enc.cur - SvPVX_const(enc.sv));
     *SvEND (enc.sv) = 0;
