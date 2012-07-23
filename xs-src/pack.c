@@ -1,6 +1,7 @@
 /*
  * code is written by tokuhirom.
  * buffer alocation technique is taken from JSON::XS. thanks to mlehmann.
+ * crc by Reini Urban
  */
 #include "xshelper.h"
 
@@ -41,6 +42,10 @@ dmp_append_buf(enc_t* const enc, const void* const buf, STRLEN const len)
 
 #define msgpack_pack_append_buffer(enc, buf, len) \
             dmp_append_buf(enc, buf, len)
+
+#define HAVE_ZLIB
+#define _msgpack_crc_user(crc, x)  \
+  _msgpack_data_crc(crc, SvPVX_const(x->sv), x->cur)
 
 #include "msgpack/pack_template.h"
 
