@@ -262,16 +262,27 @@ STATIC_INLINE int template_callback_raw(unpack_user* u PERL_UNUSED_DECL, const c
 {
     dTHX;
     /*  newSVpvn(p, l) returns an undef if p == NULL */
-    /* *o = ((l==0) ? newSVpvs("") : newSVpvn(p, l)); */
+#ifndef USE_SMAZ
+    *o = ((l==0) ? newSVpvs("") : newSVpvn(p, l));
+#else
     if (l > 0 && l < 65536) {
-      char newpv[65535];
-      int newlen = smaz_decompress((char*)p, l, newpv, 65535);
-      *o =  (newlen >= 32) ? newSVpvn(newpv, newlen) : newSVpvn(p, l);
+      l--;
+      if (*p >= SMAZ_MIN) { /* oldlen = first byte */
+	char newpv[65535];
+	int newlen;
+	p++;
+	newlen = smaz_decompress((char*)p, l, newpv, 65535);
+	*o = newSVpvn(newpv, newlen);
+      } else {
+	p++;
+	*o =  newSVpvn(p, l);
+      }
     } else if (l==0) {
       *o = newSVpvs("");
     } else { /* possibly snappy or zlib copmpressed */
-      newSVpvn(p, l);
+      *o = newSVpvn(p, l);
     }
+#endif
     if(u->utf8) {
         sv_utf8_decode(*o);
     }

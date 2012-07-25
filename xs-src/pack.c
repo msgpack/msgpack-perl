@@ -188,15 +188,30 @@ STATIC_INLINE void _msgpack_pack_sv(pTHX_ enc_t* const enc, SV* const sv, int co
         if (enc->prefer_int && try_int(enc, pv, len)) {
             return;
         } else {
-	    if ((len >= 32) && (len < 65536)) {
-	      char newpv[65535];
-	      int newlen = smaz_compress((char*)pv, len, newpv, 65535);
-	      msgpack_pack_raw(enc, newlen);
-	      msgpack_pack_raw_body(enc, newpv, newlen);
+#ifndef USE_SMAZ
+	  msgpack_pack_raw(enc, len);
+	  msgpack_pack_raw_body(enc, pv, len);
+#else
+	  if (len > 0 && len < 65536) {
+	      /* store the old len also in buffer to avoid decompression if too short */
+	      unsigned char b = (unsigned char)(len & 0xff);
+	      if (len >= SMAZ_MIN) {
+		char newpv[65535];
+		int newlen = smaz_compress((char*)pv, len, newpv, 65535);
+		msgpack_pack_raw(enc, newlen+1);
+		msgpack_pack_raw_body(enc, &b, 1);
+		msgpack_pack_raw_body(enc, newpv, newlen);
+	      } else {
+		msgpack_pack_raw(enc, len+1);
+		msgpack_pack_raw_body(enc, &b, 1);
+		msgpack_pack_raw_body(enc, pv, len);
+	      }
 	    } else {
+	      /* do zlib or snappy? */
 	      msgpack_pack_raw(enc, len);
 	      msgpack_pack_raw_body(enc, pv, len);
 	    }
+#endif
         }
     } else if (SvNOKp(sv)) {
         msgpack_pack_double(enc, (double)SvNVX(sv));
@@ -360,7 +375,7 @@ XS(xs_add_crc) {
         Perl_croak(aTHX_ "Usage: Data::MessagePack->add_crc($packed)");
     }
 
-    SV* self  = ST(0);
+    /* SV* self  = ST(0); */
     SV* val   = ST(1);
 
     enc_t enc;
