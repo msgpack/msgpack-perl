@@ -188,7 +188,7 @@ STATIC_INLINE void _msgpack_pack_sv(pTHX_ enc_t* const enc, SV* const sv, int co
         if (enc->prefer_int && try_int(enc, pv, len)) {
             return;
         } else {
-	    if (len < 65536) {
+	    if ((len >= 32) && (len < 65536)) {
 	      char newpv[65535];
 	      int newlen = smaz_compress((char*)pv, len, newpv, 65535);
 	      msgpack_pack_raw(enc, newlen);
