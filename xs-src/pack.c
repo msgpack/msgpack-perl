@@ -1,11 +1,12 @@
 /*
  * code is written by tokuhirom.
  * buffer alocation technique is taken from JSON::XS. thanks to mlehmann.
- * crc by Reini Urban
+ * crc and smaz by rurban
  */
 #include "xshelper.h"
 
 #include "msgpack/pack_define.h"
+#include "smaz.h"
 
 #define msgpack_pack_inline_func(name) \
     static inline void msgpack_pack ## name
@@ -187,8 +188,15 @@ STATIC_INLINE void _msgpack_pack_sv(pTHX_ enc_t* const enc, SV* const sv, int co
         if (enc->prefer_int && try_int(enc, pv, len)) {
             return;
         } else {
-            msgpack_pack_raw(enc, len);
-            msgpack_pack_raw_body(enc, pv, len);
+	    if (len < 65536) {
+	      char newpv[65535];
+	      int newlen = smaz_compress((char*)pv, len, newpv, 65535);
+	      msgpack_pack_raw(enc, newlen);
+	      msgpack_pack_raw_body(enc, newpv, newlen);
+	    } else {
+	      msgpack_pack_raw(enc, len);
+	      msgpack_pack_raw_body(enc, pv, len);
+	    }
         }
     } else if (SvNOKp(sv)) {
         msgpack_pack_double(enc, (double)SvNVX(sv));

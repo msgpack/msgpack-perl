@@ -1,3 +1,11 @@
+0.46_02 (rurban)
+
+   - added smaz compression for small strings
+
+0.46_01 (rurban)
+
+   - added add_crc (2% slower test alone)
+
 0.46
 
     - fixed unpacking issue on big-endian system.

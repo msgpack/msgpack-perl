@@ -18,6 +18,7 @@ typedef struct {
 #define UNPACK_USER_INIT { false, false, NULL }
 
 #include "msgpack/unpack_define.h"
+#include "smaz.h"
 
 #define msgpack_unpack_struct(name) \
     struct template ## name
@@ -261,7 +262,16 @@ STATIC_INLINE int template_callback_raw(unpack_user* u PERL_UNUSED_DECL, const c
 {
     dTHX;
     /*  newSVpvn(p, l) returns an undef if p == NULL */
-    *o = ((l==0) ? newSVpvs("") : newSVpvn(p, l));
+    /* *o = ((l==0) ? newSVpvs("") : newSVpvn(p, l)); */
+    if (l>0 && l<65536) {
+      char newpv[65535];
+      int newlen = smaz_decompress((char*)p, l, newpv, 65535);
+      *o = newSVpvn(newpv, newlen);
+    } else if (l==0) {
+      *o = newSVpvs("");
+    } else { /* possibly snappy or zlib copmpressed */
+      newSVpvn(p, l);
+    }
     if(u->utf8) {
         sv_utf8_decode(*o);
     }
