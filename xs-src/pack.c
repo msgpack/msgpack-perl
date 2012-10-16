@@ -1,6 +1,6 @@
 /*
  * code is written by tokuhirom.
- * buffer alocation technique is taken from JSON::XS. thanks to mlehmann.
+ * buffer allocation technique is taken from JSON::XS. thanks to mlehmann.
  */
 #include "xshelper.h"
 
