@@ -1,6 +1,7 @@
 /*
  * code is written by tokuhirom.
- * buffer alocation technique is taken from JSON::XS. thanks to mlehmann.
+ * buffer allocation technique is taken from JSON::XS. thanks to mlehmann.
+ * crc by Reini Urban
  */
 #include "xshelper.h"
 
@@ -25,8 +26,8 @@ typedef struct {
 STATIC_INLINE void
 dmp_append_buf(enc_t* const enc, const void* const buf, STRLEN const len)
 {
+    dTHX;
     if (enc->cur + len >= enc->end) {
-        dTHX;
         STRLEN const cur = enc->cur - SvPVX_const(enc->sv);
         sv_grow (enc->sv, cur + (len < (cur >> 2) ? cur >> 2 : len) + 1);
         enc->cur = SvPVX_mutable(enc->sv) + cur;
@@ -41,6 +42,9 @@ dmp_append_buf(enc_t* const enc, const void* const buf, STRLEN const len)
 
 #define msgpack_pack_append_buffer(enc, buf, len) \
             dmp_append_buf(enc, buf, len)
+
+#define _msgpack_crc_user(crc, x)  \
+  _msgpack_data_crc(crc, SvPVX_const(x->sv), (unsigned char *)x->cur)
 
 #include "msgpack/pack_template.h"
 
@@ -340,3 +344,36 @@ XS(xs_pack) {
     ST(0) = enc.sv;
     XSRETURN(1);
 }
+
+XS(xs_add_crc) {
+    dXSARGS;
+    if (items < 2) {
+        Perl_croak(aTHX_ "Usage: Data::MessagePack->add_crc($packed)");
+    }
+
+    SV* self  = ST(0);
+    SV* val   = ST(1);
+
+    enc_t enc;
+#if 0
+    /* This copies the sv with its pv anew, even if we share the pv */
+    enc.sv        = sv_2mortal(newSV_type(SVt_PV));
+    SvPV_set(enc.sv, SvPVX_const(val));
+    SvCUR_set(enc.sv, SvCUR(val));
+    SvLEN_set(enc.sv, SvLEN(val));
+#else
+    /* Modify in place. The pv is not copied. */
+    enc.sv        = val;
+#endif
+    enc.cur       = SvEND(val);                    /* at the end */
+    enc.end       = SvPVX_const(val) + SvLEN(val); /* do not realloc buffer */
+
+    msgpack_pack_crc(&enc);
+
+    SvCUR_set(enc.sv, enc.cur - SvPVX_const(enc.sv));
+    *SvEND (enc.sv) = 0;
+
+    ST(0) = enc.sv;
+    XSRETURN(1);
+}
+

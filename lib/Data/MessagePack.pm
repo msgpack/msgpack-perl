@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use 5.008001;
 
-our $VERSION = '0.46';
+our $VERSION = '0.46_01';
 
 sub true () {
     require Data::MessagePack::Boolean;
@@ -70,11 +70,11 @@ Data::MessagePack - MessagePack serialising/deserialising
     $mp->canonical->utf8->prefer_integer if $needed;
 
     my $packed   = $mp->pack($dat);
-    my $unpacked = $mp->unpack($dat);
+    my $newdat   = $mp->unpack($packed);
 
 =head1 DESCRIPTION
 
-This module converts Perl data structures to MessagePack and vice versa.
+This module converts simple Perl data structures to MessagePack and vice versa.
 
 =head1 ABOUT MESSAGEPACK FORMAT
 
@@ -115,19 +115,20 @@ please visit to L<http://msgpack.org/>.
 
 =item C<< my $packed = Data::MessagePack->pack($data[, $max_depth]); >>
 
-Pack the $data to messagepack format string.
+Pack the perl $data - numeric or string scalar or arrayref or hashref
+of those - to a messagepack format string.
 
 This method throws an exception when the perl structure is nested more
 than $max_depth levels(default: 512) in order to detect circular
 references.
 
 Data::MessagePack->pack() throws an exception when encountering a
-blessed perl object, because MessagePack is a language-independent
-format.
+blessed perl object or subroutine reference or REGEXP object, because
 
-=item C<< my $unpacked = Data::MessagePack->unpack($msgpackstr); >>
+=item C<< my $unpacked = Data::MessagePack->unpack($packed); >>
 
-unpack the $msgpackstr to a MessagePack format string.
+unpack the MessagePack formatted $packed data to a new perl data scalar,
+i.e. an immediate scalar or reference.
 
 =item C<< my $mp = Data::MesssagePack->new() >>
 
@@ -164,9 +165,16 @@ See L<perlunifaq> for the meaning of B<text string>.
 
 Same as C<< Data::MessagePack->pack() >>, but properties are respected.
 
-=item C<< $data = $mp->unpack($data) >>
+=item C<< $packed = $mp->add_crc($packed) >>
 
-=item C<< $data = $mp->decode($data) >>
+Add an optional crc checksum to the packed data at the end.
+unpack/decode will check this and report an error on data corruption.
+
+Note that the original string will be changed in place for efficiency.
+
+=item C<< $data = $mp->unpack($packed) >>
+
+=item C<< $data = $mp->decode($packed) >>
 
 Same as C<< Data::MessagePack->unpack() >>, but properties are respected.
 
@@ -186,6 +194,10 @@ Use C<< $msgpack->prefer_integer >> property instead.
 =back
 
 =head1 SPEED
+
+Data::MessagePack is the fastest known Perl serializer and deserializer
+for small objects (<500b), but is slower than JSON::XS and Storable on medium
+sized (2-3K) or bigger data (~100K).
 
 This is a result of F<benchmark/serialize.pl> and F<benchmark/deserialize.pl>
 on my SC440(Linux 2.6.32-23-server #37-Ubuntu SMP).
@@ -242,6 +254,8 @@ will astonish those who try to unpack byte streams with an arbitrary buffer size
 (e.g. C<< while(read($socket, $buffer, $arbitrary_buffer_size)) { ... } >>).
 We should implement the internal buffer for the unpacker.
 
+=item Improve performance for larger buffers
+
 =back
 
 =head1 FAQ
@@ -275,6 +289,8 @@ hanekomu
 Kazuho Oku
 
 shohex
+
+Reini Urban
 
 =head1 LICENSE
 
