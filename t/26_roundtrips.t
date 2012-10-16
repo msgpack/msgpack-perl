@@ -38,6 +38,30 @@ sub randword {
   $h2{ randword(int(rand(20))+4) }  = $i++ for 1..200;
   $h3{ randword(int(rand(12))) . $i++ } = randstr(rand(int(12)+10)) for 1..2000;
   $h3{ randword(int(rand(12))+10) } = $i++ % 2 ? 0 : 1 for 1..2000;
+
+  if (0) {
+    unlink "h2","h3";
+    open H2, ">>h2";
+    print H2 "my %h2 = (\n";
+    for (keys %h2) {
+      my $k = $_;      $k =~ s/'/\\'/g;
+      my $v = $h2{$_};
+      print H2 "  '$k' => $v,\n" ;
+    }
+    print H2 ");\n";
+    close H2;
+    open H3, ">>h3";
+    print H3 "my %h3 = (\n";
+    for (keys %h3) {
+      my $k = $_;      $k =~ s/'/\\'/g;
+      my $v = $h3{$_}; $v =~ s/'/\\'/g;
+      $v = $v =~ /^\d+$/ ? $v : "'".$v."'";
+      print H3 "  '$k' => $v,\n" ;
+    }
+    print H3 ");\n";
+    close H3;
+  }
+
   my $mp = Data::MessagePack->new();
 
   my $p1 = $mp->pack( \%h1 );

@@ -26,8 +26,8 @@ typedef struct {
 STATIC_INLINE void
 dmp_append_buf(enc_t* const enc, const void* const buf, STRLEN const len)
 {
+    dTHX;
     if (enc->cur + len >= enc->end) {
-        dTHX;
         STRLEN const cur = enc->cur - SvPVX_const(enc->sv);
         sv_grow (enc->sv, cur + (len < (cur >> 2) ? cur >> 2 : len) + 1);
         enc->cur = SvPVX_mutable(enc->sv) + cur;
