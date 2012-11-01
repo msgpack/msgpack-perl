@@ -5,5 +5,5 @@ Data::MessagePack::Unpacker - (DEPRECATED)messagepack streaming deserializer
 =head1 DESCRIPTION
 
 This module was deprecated. This module have a critical issue.
-Use L<Data::MessagePack> instead.
+Use L<Data::MessagePack::Stream> instead.
 
