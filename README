@@ -1,5 +1,5 @@
 NAME
-    Data::MessagePack - MessagePack serialising/deserialising
+    Data::MessagePack - MessagePack serializing/deserializing
 
 SYNOPSIS
         use Data::MessagePack;
@@ -175,4 +175,3 @@ SEE ALSO
     Data::MessagePack::Unpacker
 
     AnyEvent::MPRPC
-
