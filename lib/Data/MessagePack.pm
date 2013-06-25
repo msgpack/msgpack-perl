@@ -60,7 +60,7 @@ __END__
 
 =head1 NAME
 
-Data::MessagePack - MessagePack serialising/deserialising
+Data::MessagePack - MessagePack serializing/deserializing
 
 =head1 SYNOPSIS
 
