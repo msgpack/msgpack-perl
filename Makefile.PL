@@ -2,6 +2,7 @@
 #        Makefile.PL -g   # add -g to the compiler and disable optimization flags
 use inc::Module::Install;
 use Module::Install::XSUtil 0.44;
+use Module::Install::AuthorTests;
 
 name 'Data-MessagePack';
 all_from 'lib/Data/MessagePack.pm';
