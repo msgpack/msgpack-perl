@@ -231,7 +231,7 @@ sub _pack {
     my $b_obj = B::svref_2object( \$value );
     my $flags = $b_obj->FLAGS;
 
-    if ( $flags & B::SVp_POK ) { # raw / check needs before dboule
+    if ( $flags & B::SVp_POK ) { # raw / check needs before double
 
         if ( $self->{prefer_integer} ) {
             if ( $value =~ /^-?[0-9]+$/ ) { # ok?
