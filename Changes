@@ -1,3 +1,7 @@
+0.48 2013-09-01 15:42:51+0900
+
+    - Fix tests for bleadperl
+
 0.47
 
     - Support PUREPERL_ONLY build
