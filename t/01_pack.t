@@ -1,6 +1,9 @@
 use t::Util;
 use Test::More;
 use Data::MessagePack;
+if ($] >= 5.019) {
+  require Scalar::Util;
+}
 
 sub packit {
     local $_ = unpack("H*", Data::MessagePack->pack($_[0]));
@@ -33,7 +36,7 @@ my @dat = (
     -32768, 'd1 80 00',
     -32769, 'd2 ff ff 7f ff',
     1.0,   'cb 3f f0 00 00 00 00 00 00',
-    do { my $x=3.0;my $y = "$x";$x },   'a1 33', # PVNV
+    $] < 5.019 ? do { my $x=3.0;my $y = "$x";$x } : Scalar::Util::dualvar(3.0,"3"), 'a1 33', # PVNV
     do { my $x=3;  my $y = "$x";$x },   'a1 33', # PVIV
     "",    'a0',
     "a",   'a1 61',
