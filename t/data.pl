@@ -54,4 +54,60 @@ no warnings; # i need this, i need this.
     'd3 00 10 00 00 00 00 00 00' => '4503599627370496',
     'd3 10 00 00 00 00 00 00 00' => '1152921504606846976',
     'd3 11 00 00 00 00 00 00 00' => '1224979098644774912',
+
+    'c4 06 72 65 73 75 6c 74' => "result",        # bin 8
+    'c5 00 07 73 75 63 63 65 73 73' => "success", # bin 16
+    'c6 00 00 00 05 74 6f 6b 65 6e' => "token",   # bin 32
+
+    # ext 8
+    'c7 04 55 12 34 56 78' => Data::MessagePack::ExtensionType::Ext8->new(
+        size  => 4,
+        type  => 0x55,
+        data  => pack("C4", 0x12, 0x34, 0x56, 0x78)
+    ),
+    # ext 16
+    'c8 00 05 34 11 22 33 44 55' => Data::MessagePack::ExtensionType::Ext16->new(
+        size  => 5,
+        type  => 0x34,
+        data  => pack("C5", 0x11, 0x22, 0x33, 0x44, 0x55)
+    ),
+    # ext 32
+    'c9 00 00 00 03 77 01 05 42' => Data::MessagePack::ExtensionType::Ext32->new(
+        size  => 3,
+        type  => 0x77,
+        data  => scalar pack("C3", 0x01, 0x05, 0x42)
+    ),
+
+    # fixext 1
+    'd4 44 33' => Data::MessagePack::ExtensionType::FixExt1->new(
+        size  => 1,
+        type  => 0x44,
+        data  => pack("C1", 0x33)
+    ),
+    # fixext 2
+    'd5 55 66 77' => Data::MessagePack::ExtensionType::FixExt2->new(
+        size  => 2,
+        type  => 0x55,
+        data  => pack("C2", 0x66, 0x77)
+    ),
+    # fixext 4
+    'd6 66 77 88 99 00' => Data::MessagePack::ExtensionType::FixExt4->new(
+        size  => 4,
+        type  => 0x66,
+        data  => pack("C4", 0x77, 0x88, 0x99, 0x00)
+    ),
+    # fixext 8
+    'd7 77 11 22 33 44 55 66 77 88' => Data::MessagePack::ExtensionType::FixExt8->new(
+        size  => 8,
+        type  => 0x77,
+        data  => pack("C8", 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88)
+    ),
+    # fixext 16
+    'd8 77 11 22 33 44 55 66 77 88 88 77 66 55 44 33 22 11' => Data::MessagePack::ExtensionType::FixExt16->new(
+        size  => 16,
+        type  => 0x77,
+        data  => pack("C16",
+                      0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88,
+                      0x88, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11)
+    ),
 )

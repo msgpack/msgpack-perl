@@ -3,6 +3,8 @@ use strict;
 use warnings;
 use 5.008001;
 
+use Data::MessagePack::ExtensionType;
+
 our $VERSION = '0.48';
 
 sub true () {
