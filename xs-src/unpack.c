@@ -268,6 +268,13 @@ STATIC_INLINE int template_callback_raw(unpack_user* u PERL_UNUSED_DECL, const c
     return 0;
 }
 
+STATIC_INLINE int template_callback_bin(unpack_user* u PERL_UNUSED_DECL, const char* b PERL_UNUSED_DECL, const char* p, unsigned int l, SV** o)
+{
+    dTHX;
+    *o = ((l==0) ? newSVpvs("") : newSVpvn(p, l));
+    return 0;
+}
+
 #include "msgpack/unpack_template.h"
 
 #define UNPACKER(from, name)                                                  \
