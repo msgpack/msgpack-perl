@@ -1,5 +1,6 @@
 package Data::MessagePack::Boolean;
 use strict;
+use warnings;
 use overload
     'bool' => sub { ${ $_[0] } },
     '0+'   => sub { ${ $_[0] } },
