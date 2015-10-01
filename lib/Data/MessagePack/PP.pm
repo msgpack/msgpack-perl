@@ -252,12 +252,21 @@ sub _pack {
         utf8::encode( $value ) if utf8::is_utf8( $value );
 
         my $num = length $value;
-        my $header =
-              $num < 32          ? CORE::pack( 'C',  0xa0 + $num )
-            : $num < 2 ** 16 - 1 ? CORE::pack( 'Cn', 0xda, $num )
-            : $num < 2 ** 32 - 1 ? CORE::pack( 'CN', 0xdb, $num )
-            : _unexpected('number %d', $num)
-        ;
+        my $header;
+        if ($self->{utf8}) { # Str
+            $header =
+                $num < 32          ? CORE::pack( 'C',  0xa0 + $num )
+                : $num < 2 ** 8  - 1 ? CORE::pack( 'CC', 0xd9, $num)
+                : $num < 2 ** 16 - 1 ? CORE::pack( 'Cn', 0xda, $num )
+                : $num < 2 ** 32 - 1 ? CORE::pack( 'CN', 0xdb, $num )
+                : _unexpected('number %d', $num);
+        } else { # Bin
+            $header =
+                $num < 2 ** 8 - 1 ? CORE::pack( 'CC',  0xc4, $num)
+                : $num < 2 ** 16 - 1 ? CORE::pack( 'Cn', 0xc5, $num )
+                : $num < 2 ** 32 - 1 ? CORE::pack( 'CN', 0xc6, $num )
+                : _unexpected('number %d', $num);
+        }
 
         return $header . $value;
 
@@ -308,7 +317,7 @@ sub unpack :method {
     return $data;
 }
 
-my $T_RAW             = 0x01;
+my $T_STR             = 0x01;
 my $T_ARRAY           = 0x02;
 my $T_MAP             = 0x04;
 my $T_BIN             = 0x08;
@@ -326,10 +335,11 @@ $typemap[$_] |= $T_MAP for
     0xde,         # map16
     0xdf,         # map32
 ;
-$typemap[$_] |= $T_RAW for
-    0xa0 .. 0xbf, # fix raw
-    0xda,         # raw16
-    0xdb,         # raw32
+$typemap[$_] |= $T_STR for
+    0xa0 .. 0xbf, # fix str
+    0xd9,         # str8
+    0xda,         # str16
+    0xdb,         # str32
 ;
 $typemap[$_] |= $T_BIN for
     0xc4,         # bin 8
@@ -382,12 +392,12 @@ sub _unpack {
     # +/- fixnum, nil, true, false
     return $byte2value[$byte] if $typemap[$byte] & $T_DIRECT;
 
-    if ( $typemap[$byte] & $T_RAW ) {
-        my $size = _fetch_size(\$value, $byte, undef, 0xda, 0xdb, 0xa0);
+    if ( $typemap[$byte] & $T_STR ) {
+        my $size = _fetch_size(\$value, $byte, 0xd9, 0xda, 0xdb, 0xa0);
         my $s    = substr( $value, $p, $size );
         length($s) == $size or _insufficient('raw');
         $p      += $size;
-        utf8::decode($s) if $_utf8;
+        utf8::decode($s);
         return $s;
     }
     elsif ( $typemap[$byte] & $T_ARRAY ) {
@@ -412,6 +422,7 @@ sub _unpack {
         my $s    = substr( $value, $p, $size );
         length($s) == $size or _insufficient('bin');
         $p      += $size;
+        utf8::decode($s) if $_utf8;
         return $s;
     }
     elsif ( $byte == 0xcc ) { # uint8
@@ -542,9 +553,13 @@ sub _count {
     # +/- fixnum, nil, true, false
     return 1 if $typemap[$byte] & $T_DIRECT;
 
-    if ( $typemap[$byte] & $T_RAW ) {
+    if ( $typemap[$byte] & $T_STR ) {
         my $num;
-        if ( $byte == 0xda ) {
+        if ( $byte == 0xd9 ) {
+            $num = unpack 'C', substr( $value, $p, 1 );
+            $p += 1;
+        }
+        elsif ( $byte == 0xda ) {
             $num = unpack 'n', substr( $value, $p, 2 );
             $p += 2;
         }
@@ -604,7 +619,7 @@ sub _count {
             $num = unpack 'C', substr( $value, $p, 1 );
             $p += 1;
         }
-        if ( $byte == 0xc5 ) { # bin 16
+        elsif ( $byte == 0xc5 ) { # bin 16
             $num = unpack 'n', substr( $value, $p, 2 );
             $p += 2;
         }
@@ -613,10 +628,7 @@ sub _count {
             $p += 4;
         }
 
-        if ( $num ) {
-            push @{ $self->{stack} }, $num * 2 + 1; # a pair
-        }
-
+        $p += $num;
         return 1;
     }
     elsif ( $byte >= 0xcc and $byte <= 0xcf ) { # uint
