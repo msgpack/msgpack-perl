@@ -158,7 +158,7 @@ STATIC_INLINE int try_int(enc_t* enc, const char *p, size_t len) {
 
     if (negative) {
         if (num > 0x80000000) { return 0; }
-        msgpack_pack_int32(enc, ((int32_t)num) * -1);
+        msgpack_pack_int32(enc, ((int32_t)-num));
     } else {
         if (num > 0xFFFFFFFF) { return 0; }
         msgpack_pack_uint32(enc, (uint32_t)num);
