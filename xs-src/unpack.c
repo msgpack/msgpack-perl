@@ -276,6 +276,13 @@ STATIC_INLINE int template_callback_bin(unpack_user* u PERL_UNUSED_DECL, const c
     return 0;
 }
 
+STATIC_INLINE int template_callback_ext(unpack_user* u PERL_UNUSED_DECL, const char* b PERL_UNUSED_DECL, const char* p PERL_UNUSED_DECL,
+                                        unsigned int l PERL_UNUSED_DECL, SV** o PERL_UNUSED_DECL)
+{
+    croak("EXT type is not supporeted yet");
+    return 0;
+}
+
 #include "msgpack/unpack_template.h"
 
 #define UNPACKER(from, name)                                                  \
