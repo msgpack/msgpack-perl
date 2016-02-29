@@ -168,9 +168,9 @@ STATIC_INLINE int try_int(enc_t* enc, const char *p, size_t len) {
 }
 
 
-STATIC_INLINE void _msgpack_pack_rv(pTHX_ enc_t *enc, SV* sv, int depth);
+STATIC_INLINE void _msgpack_pack_rv(pTHX_ enc_t *enc, SV* sv, int depth, bool utf8);
 
-STATIC_INLINE void _msgpack_pack_sv(pTHX_ enc_t* const enc, SV* const sv, int const depth) {
+STATIC_INLINE void _msgpack_pack_sv(pTHX_ enc_t* const enc, SV* const sv, int const depth, bool utf8) {
     assert(sv);
     if (UNLIKELY(depth <= 0)) Perl_croak(aTHX_ ERR_NESTING_EXCEEDED);
     SvGETMAGIC(sv);
@@ -182,8 +182,13 @@ STATIC_INLINE void _msgpack_pack_sv(pTHX_ enc_t* const enc, SV* const sv, int co
         if (enc->prefer_int && try_int(enc, pv, len)) {
             return;
         } else {
-            msgpack_pack_raw(enc, len);
-            msgpack_pack_raw_body(enc, pv, len);
+            if (utf8) {
+                msgpack_pack_str(enc, len);
+                msgpack_pack_str_body(enc, pv, len);
+            } else {
+                msgpack_pack_bin(enc, len);
+                msgpack_pack_bin_body(enc, pv, len);
+            }
         }
     } else if (SvNOKp(sv)) {
         msgpack_pack_double(enc, (double)SvNVX(sv));
@@ -194,7 +199,7 @@ STATIC_INLINE void _msgpack_pack_sv(pTHX_ enc_t* const enc, SV* const sv, int co
             PACK_IV(enc, SvIVX(sv));
         }
     } else if (SvROK(sv)) {
-        _msgpack_pack_rv(aTHX_ enc, SvRV(sv), depth-1);
+        _msgpack_pack_rv(aTHX_ enc, SvRV(sv), depth-1, utf8);
     } else if (!SvOK(sv)) {
         msgpack_pack_nil(enc);
     } else if (isGV(sv)) {
@@ -206,12 +211,12 @@ STATIC_INLINE void _msgpack_pack_sv(pTHX_ enc_t* const enc, SV* const sv, int co
 }
 
 STATIC_INLINE
-void _msgpack_pack_he(pTHX_ enc_t* enc, HV* hv, HE* he, int depth) {
-    _msgpack_pack_sv(aTHX_ enc, hv_iterkeysv(he),   depth);
-    _msgpack_pack_sv(aTHX_ enc, hv_iterval(hv, he), depth);
+void _msgpack_pack_he(pTHX_ enc_t* enc, HV* hv, HE* he, int depth, bool utf8) {
+    _msgpack_pack_sv(aTHX_ enc, hv_iterkeysv(he),   depth, utf8);
+    _msgpack_pack_sv(aTHX_ enc, hv_iterval(hv, he), depth, utf8);
 }
 
-STATIC_INLINE void _msgpack_pack_rv(pTHX_ enc_t *enc, SV* sv, int depth) {
+STATIC_INLINE void _msgpack_pack_rv(pTHX_ enc_t *enc, SV* sv, int depth, bool utf8) {
     svtype svt;
     assert(sv);
     SvGETMAGIC(sv);
@@ -258,11 +263,11 @@ STATIC_INLINE void _msgpack_pack_rv(pTHX_ enc_t *enc, SV* sv, int depth) {
             for (i=0; i<len; i++) {
                 SV* sv = *av_fetch(keys, i, TRUE);
                 he = hv_fetch_ent(hval, sv, FALSE, 0U);
-                _msgpack_pack_he(aTHX_ enc, hval, he, depth);
+                _msgpack_pack_he(aTHX_ enc, hval, he, depth, utf8);
             }
         } else {
             while ((he = hv_iternext(hval))) {
-                _msgpack_pack_he(aTHX_ enc, hval, he, depth);
+                _msgpack_pack_he(aTHX_ enc, hval, he, depth, utf8);
             }
         }
     } else if (svt == SVt_PVAV) {
@@ -273,7 +278,7 @@ STATIC_INLINE void _msgpack_pack_rv(pTHX_ enc_t *enc, SV* sv, int depth) {
         for (i=0; i<len; i++) {
             SV** svp = av_fetch(ary, i, 0);
             if (svp) {
-                _msgpack_pack_sv(aTHX_ enc, *svp, depth);
+                _msgpack_pack_sv(aTHX_ enc, *svp, depth, utf8);
             } else {
                 msgpack_pack_nil(enc);
             }
@@ -306,6 +311,7 @@ XS(xs_pack) {
     SV* self  = ST(0);
     SV* val   = ST(1);
     int depth = 512;
+    bool utf8 = false;
     if (items >= 3) depth = SvIVx(ST(2));
 
     enc_t enc;
@@ -330,9 +336,14 @@ XS(xs_pack) {
         if(svp) {
             enc.canonical = SvTRUE(*svp) ? true : false;
         }
+
+        svp = hv_fetchs(hv, "utf8", FALSE);
+        if (svp) {
+            utf8 = SvTRUE(*svp) ? true : false;
+        }
     }
 
-    _msgpack_pack_sv(aTHX_ &enc, val, depth);
+    _msgpack_pack_sv(aTHX_ &enc, val, depth, utf8);
 
     SvCUR_set(enc.sv, enc.cur - SvPVX (enc.sv));
     *SvEND (enc.sv) = 0; /* many xs functions expect a trailing 0 for text strings */

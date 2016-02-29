@@ -257,14 +257,29 @@ STATIC_INLINE int template_callback_map_item(unpack_user* u PERL_UNUSED_DECL, SV
     return 0;
 }
 
-STATIC_INLINE int template_callback_raw(unpack_user* u PERL_UNUSED_DECL, const char* b PERL_UNUSED_DECL, const char* p, unsigned int l, SV** o)
+STATIC_INLINE int template_callback_str(unpack_user* u PERL_UNUSED_DECL, const char* b PERL_UNUSED_DECL, const char* p, unsigned int l, SV** o)
 {
     dTHX;
     /*  newSVpvn(p, l) returns an undef if p == NULL */
     *o = ((l==0) ? newSVpvs("") : newSVpvn(p, l));
+    sv_utf8_decode(*o);
+    return 0;
+}
+
+STATIC_INLINE int template_callback_bin(unpack_user* u PERL_UNUSED_DECL, const char* b PERL_UNUSED_DECL, const char* p, unsigned int l, SV** o)
+{
+    dTHX;
+    *o = ((l==0) ? newSVpvs("") : newSVpvn(p, l));
     if(u->utf8) {
         sv_utf8_decode(*o);
     }
+    return 0;
+}
+
+STATIC_INLINE int template_callback_ext(unpack_user* u PERL_UNUSED_DECL, const char* b PERL_UNUSED_DECL, const char* p PERL_UNUSED_DECL,
+                                        unsigned int l PERL_UNUSED_DECL, SV** o PERL_UNUSED_DECL)
+{
+    croak("EXT type is not supporeted yet");
     return 0;
 }
 
