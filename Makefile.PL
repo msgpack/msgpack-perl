@@ -57,7 +57,8 @@ if(!$use_xs) {
 
 test_with_env( test_pp => PERL_DATA_MESSAGEPACK => 'pp' );
 
-repository('http://github.com/msgpack/msgpack-perl');
+repository('https://github.com/msgpack/msgpack-perl');
+bugtracker('https://github.com/msgpack/msgpack-perl/issues');
 
 clean_files qw{
     *.stackdump
