@@ -302,8 +302,6 @@ XS(xs_unpack) {
     dXSARGS;
     SV* const self = ST(0);
     SV* const data = ST(1);
-    size_t limit;
-
     unpack_user u = UNPACK_USER_INIT;
 
     // setup configuration
@@ -317,13 +315,7 @@ XS(xs_unpack) {
         }
     }
 
-    if (items == 2) {
-        limit = sv_len(data);
-    }
-    else if(items == 3) {
-        limit = SvUVx(ST(2));
-    }
-    else {
+    if (!(items == 2 || items == 3)) {
         Perl_croak(aTHX_ "Usage: Data::MessagePack->unpack('data' [, $limit])");
     }
 
