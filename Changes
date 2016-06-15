@@ -1,3 +1,7 @@
+0.50 2016-06-15 12:09:00+0900
+
+    - No feature changes. Official release for supporting Bin/Str format
+
 0.49_01 2016-03-01 14:40:00+0900
 
     - Support Bin/Str type of newer MessegePack specification
