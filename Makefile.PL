@@ -7,8 +7,6 @@ use Module::Install::AuthorTests;
 name 'Data-MessagePack';
 all_from 'lib/Data/MessagePack.pm';
 
-configure_requires('File::Copy::Recursive');
-
 test_requires('Test::More' => 0.94); # done_testing
 test_requires('Test::Requires');
 
@@ -120,37 +118,18 @@ sub init_msgpack {
 
     require File::Path;
     require File::Copy;
-    require File::Copy::Recursive;
 
     File::Path::rmtree([qw(include t/std)]);
+    File::Path::mkpath([qw(include/msgpack t/std)]);
 
-    my %msgpack_header = (
-        'include'                => ['msgpack-c/include/msgpack.h'],
-        'include/msgpack'        => [<msgpack-c/include/msgpack/pack*.h>,
-                                     <msgpack-c/include/msgpack/unpack*.h>,
-                                     'msgpack-c/include/msgpack/sysdep.h',
-                                     'msgpack-c/include/msgpack/predef.h'],
-        'include/msgpack/predef' => ['msgpack-c/include/msgpack/predef'],
-    );
-
-    while (my ($dest, $srcs) = each %msgpack_header) {
-        File::Path::mkpath([$dest]);
-
-        for my $src (@{$srcs}) {
-            next if $src =~ m/^\.\.?$/;
-            print "AuthorMode: copy $src to $dest\n";
-
-            if (-d $src) {
-                File::Copy::Recursive::dircopy($src, "$dest/") or die "copy failed: $!";
-            } else {
-                File::Copy::copy($src, $dest) or die "copy failed: $!";
-            }
-        }
+    for my $src (<msgpack/msgpack/*.h>) {
+        print "AuthorMode: copy $src to include/msgpack\n";
+        File::Copy::copy($src, 'include/msgpack') or die "copy failed: $!";
     }
 
-    File::Path::mkpath([qw(t/std)]);
-    for my $src(<msgpack-c/test/*.mpac>) {
+    for my $src(<msgpack/test/*.{json,mpac}>) {
         print "AuthorMode: copy $src to t/std/\n";
         File::Copy::copy($src, 't/std') or die "copy failed: $!";
     }
 }
+
