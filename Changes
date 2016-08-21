@@ -1,3 +1,7 @@
+0.51 2016-08-21 15:20:00+0900
+
+    - Revert supporting Bin/Str type changes for MessagePack versioning rule
+
 0.50 2016-06-15 12:09:00+0900
 
     - No feature changes. Official release for supporting Bin/Str format
@@ -35,7 +39,7 @@
       T::Xslate using it...
 
 0.43 2012-06-26T02:00:57
-    
+
     - Data::MessagePack::Unpacker was deprecated.
 
 
@@ -53,20 +57,20 @@
     - Fix tests on NV == long double env
 
 0.39 2011-12-05 00:08:58
-    
+
     - Resolve RT #72920 - packing float numbers fails on some cases,
       e.g. after e.g. $flaot > 0
 
 0.38_02 2011-10-25 09:58:28
-    
+
     - More informative tests
 
 0.38_01 2011-10-25 09:44:05
-    
+
     - Add tests to reveal problems in Data::Encoder
 
 0.38 2011-10-10 16:17:03
-    
+
     - Add tests to unpacking double - the test was missing!
 
 0.37 2011-10-10 16:08:18
