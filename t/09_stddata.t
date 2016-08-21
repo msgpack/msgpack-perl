@@ -13,30 +13,24 @@ sub slurp {
     return scalar <$fh>;
 }
 
-my @data = do {
-    my $json = slurp("t/std/cases.json");
-    $json =~ s/:/=>/g;
-    @{ eval $json };
-};
-
-my $mpac1  = slurp("t/std/cases.mpac");
-my $mpac2  = slurp("t/std/cases_compact.mpac");
+my $mpac  = slurp("t/std/cases.mpac");
+my $mpac_compat  = slurp("t/std/cases_compact.mpac");
 
 my $mps = Data::MessagePack::Unpacker->new();
+my $mps_compat = Data::MessagePack::Unpacker->new();;
 
+my $offset = 0;
+my $offset_compat = 0;
 my $t = 1;
-for my $mpac($mpac1, $mpac2) {
+while ($offset < length($mpac)) {
     note "mpac", $t++;
 
-    my $offset = 0;
-    my $i = 0;
-    while($offset < length($mpac)) {
-        $offset = $mps->execute($mpac, $offset);
-        ok $mps->is_finished, "data[$i] : is_finished";
-        is_deeply $mps->data, $data[$i], "data[$i]";
-        $mps->reset;
-        $i++;
-    }
+    $offset = $mps->execute($mpac, $offset);
+    $offset_compat = $mps_compat->execute($mpac_compat, $offset_compat);
+    ok $mps->is_finished;
+    is_deeply $mps->data, $mps_compat->data;
+    $mps->reset;
+    $mps_compat->reset;
 }
 
 done_testing;
