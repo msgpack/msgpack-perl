@@ -13,6 +13,7 @@ START_MY_CXT
 typedef struct {
     bool finished;
     bool utf8;
+    bool prefer_types_serialiser;
     SV*  buffer;
 } unpack_user;
 #define UNPACK_USER_INIT { false, false, NULL }
@@ -32,6 +33,11 @@ typedef struct {
 
 #define msgpack_unpack_user unpack_user
 
+void clear_MY_CXT() {
+    MY_CXT.msgpack_true  = NULL;
+    MY_CXT.msgpack_false = NULL;
+}
+
 void init_Data__MessagePack_unpack(pTHX_ bool const cloning) {
     // booleans are load on demand (lazy load).
     if(!cloning) {
@@ -43,11 +49,8 @@ void init_Data__MessagePack_unpack(pTHX_ bool const cloning) {
     }
 
     dMY_CXT;
-    MY_CXT.msgpack_true  = NULL;
-    MY_CXT.msgpack_false = NULL;
+    clear_MY_CXT();
 }
-
-
 
 /* ---------------------------------------------------------------------- */
 /* utility functions                                                      */
@@ -79,13 +82,21 @@ get_bool(bool const value) {
     dMY_CXT;
     if(value) {
         if(!MY_CXT.msgpack_true) {
-            MY_CXT.msgpack_true = load_bool(aTHX_ "Data::MessagePack::true");
+            if(MY_CXT.prefer_types_serialiser) {
+                MY_CXT.msgpack_true = load_bool(aTHX_ "Types::Serialiser::true");
+            } else {
+                MY_CXT.msgpack_true = load_bool(aTHX_ "Data::MessagePack::true");
+            }
         }
         return newSVsv(MY_CXT.msgpack_true);
     }
     else {
         if(!MY_CXT.msgpack_false) {
-            MY_CXT.msgpack_false = load_bool(aTHX_ "Data::MessagePack::false");
+            if(MY_CXT.prefer_types_serialiser) {
+                MY_CXT.msgpack_false = load_bool(aTHX_ "Types::Serialiser::false");
+            } else {
+                MY_CXT.msgpack_false = load_bool(aTHX_ "Data::MessagePack::false");
+            }
         }
         return newSVsv(MY_CXT.msgpack_false);
     }
@@ -369,6 +380,29 @@ XS(xs_unpacker_new) {
     sv_setref_pv(self, "Data::MessagePack::Unpacker", mp);
 
     ST(0) = self;
+    XSRETURN(1);
+}
+
+XS(xs_unpacker_prefer_types_serialiser) {
+    dXSARGS;
+    if (!(items == 1 || items == 2)) {
+        Perl_croak(aTHX_ "Usage: $unpacker->prefer_types_serialiser([$bool)");
+    }
+    UNPACKER(ST(0), mp);
+    mp->user.prefer_types_serialiser = (items == 1 || sv_true(ST(1))) ? true : false;
+
+    clear_MY_CXT();
+
+    XSRETURN(1); // returns $self
+}
+
+XS(xs_unpacker_get_prefer_types_serialiser) {
+    dXSARGS;
+    if (items != 1) {
+        Perl_croak(aTHX_ "Usage: $unpacker->get_prefer_types_serialiser()");
+    }
+    UNPACKER(ST(0), mp);
+    ST(0) = boolSV(mp->user.prefer_types_serialiser);
     XSRETURN(1);
 }
 

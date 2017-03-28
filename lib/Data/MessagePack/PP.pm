@@ -223,7 +223,7 @@ sub _pack {
         }
     }
 
-    elsif ( ref( $value ) eq 'Data::MessagePack::Boolean' ) {
+    elsif ( ref( $value ) eq 'Data::MessagePack::Boolean' || ref( $value ) eq 'Types::Serialiser::Boolean' ) {
         return  CORE::pack( 'C', ${$value} ? 0xc3 : 0xc2 );
     }
 
