@@ -223,7 +223,7 @@ sub _pack {
         }
     }
 
-    elsif ( ref( $value ) eq 'Data::MessagePack::Boolean' ) {
+    elsif ( ref( $value ) eq 'Data::MessagePack::Boolean' || ref( $value )->isa('Types::Serialiser::Boolean') ) {
         return  CORE::pack( 'C', ${$value} ? 0xc3 : 0xc2 );
     }
 
@@ -307,9 +307,14 @@ sub _insufficient {
     Carp::confess("Insufficient bytes (pos=$p, type=@_)");
 }
 
+my @byte2value;
+
 sub unpack :method {
     $p = 0; # init
     $_utf8 = (ref($_[0]) && $_[0]->{utf8}) || $_utf8;
+
+    local @byte2value[ 0xc3, 0xc2 ] = ( $Types::Serialiser::true, $Types::Serialiser::false ) if $_[0]->{'prefer_types_serialiser'};
+
     my $data = _unpack( $_[1] );
     if($p < length($_[1])) {
         Carp::croak("Data::MessagePack->unpack: extra bytes");
@@ -347,7 +352,6 @@ $typemap[$_] |= $T_BIN for
     0xc6,         # bin 32
 ;
 
-my @byte2value;
 foreach my $pair(
     [0xc3, true],
     [0xc2, false],

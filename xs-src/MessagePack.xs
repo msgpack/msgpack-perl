@@ -9,6 +9,8 @@ XS(xs_unpack);
 XS(xs_unpacker_new);
 XS(xs_unpacker_utf8);
 XS(xs_unpacker_get_utf8);
+XS(xs_unpacker_prefer_types_serialiser);
+XS(xs_unpacker_get_prefer_types_serialiser);
 XS(xs_unpacker_execute);
 XS(xs_unpacker_execute_limit);
 XS(xs_unpacker_is_finished);
@@ -38,6 +40,9 @@ BOOT:
     newXS("Data::MessagePack::Unpacker::data",          xs_unpacker_data, __FILE__);
     newXS("Data::MessagePack::Unpacker::reset",         xs_unpacker_reset, __FILE__);
     newXS("Data::MessagePack::Unpacker::DESTROY",       xs_unpacker_destroy, __FILE__);
+
+    newXS("Data::MessagePack::Unpacker::prefer_types_serialiser",          xs_unpacker_prefer_types_serialiser, __FILE__);
+    newXS("Data::MessagePack::Unpacker::get_prefer_types_serialiser",      xs_unpacker_get_prefer_types_serialiser, __FILE__);
 }
 
 #ifdef USE_ITHREADS

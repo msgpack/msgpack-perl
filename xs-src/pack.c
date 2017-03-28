@@ -231,8 +231,17 @@ STATIC_INLINE void _msgpack_pack_rv(pTHX_ enc_t *enc, SV* sv, int depth, bool ut
                 msgpack_pack_false(enc);
             }
         } else {
-            croak ("encountered object '%s', Data::MessagePack doesn't allow the object",
-                           SvPV_nolen(sv_2mortal(newRV_inc(sv))));
+            HV *stash = gv_stashpv ("Types::Serialiser::Boolean", 1); // TODO: cache?
+            if (stash && (SvSTASH (sv) == stash)) {
+                if (SvIV(sv)) {
+                    msgpack_pack_true(enc);
+                } else {
+                    msgpack_pack_false(enc);
+                }
+            } else {
+                croak ("encountered object '%s', Data::MessagePack doesn't allow the object",
+                            SvPV_nolen(sv_2mortal(newRV_inc(sv))));
+            }
         }
     } else if (svt == SVt_PVHV) {
         HV* hval = (HV*)sv;
