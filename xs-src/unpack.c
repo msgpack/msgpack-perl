@@ -17,6 +17,7 @@ typedef struct {
 } unpack_user;
 #define UNPACK_USER_INIT { false, false, NULL }
 
+#include "msgpack/unpack.h"
 #include "msgpack/unpack_define.h"
 
 #define msgpack_unpack_struct(name) \
