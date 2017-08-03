@@ -5,17 +5,7 @@ use 5.008001;
 
 our $VERSION = '1.00';
 
-sub true () {
-    require Data::MessagePack::Boolean;
-    no warnings 'once';
-    return $Data::MessagePack::Boolean::true;
-}
-
-sub false () {
-    require Data::MessagePack::Boolean;
-    no warnings 'once';
-    return $Data::MessagePack::Boolean::false;
-}
+use Data::MessagePack::Boolean;
 
 if ( !__PACKAGE__->can('pack') ) { # this idea comes from Text::Xslate
     my $backend = $ENV{PERL_DATA_MESSAGEPACK} || ($ENV{PERL_ONLY} ? 'pp' : '');
