@@ -4,7 +4,6 @@ use warnings;
 use 5.008001;
 
 our $VERSION = '1.00';
-
 sub true () {
     require Data::MessagePack::Boolean;
     no warnings 'once';
@@ -36,7 +35,7 @@ sub new {
     return bless \%args, $class;
 }
 
-foreach my $name(qw(canonical prefer_integer utf8)) {
+foreach my $name(qw(canonical prefer_integer prefer_float32 utf8)) {
     my $setter = sub {
         my($self, $value) = @_;
         $self->{$name} = defined($value) ? $value : 1;
@@ -49,6 +48,7 @@ foreach my $name(qw(canonical prefer_integer utf8)) {
     no strict 'refs';
     *{$name}          = $setter;
     *{'get_' . $name} = $getter;
+
 }
 
 

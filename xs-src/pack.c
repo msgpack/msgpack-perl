@@ -19,6 +19,7 @@ typedef struct {
     SV *sv;          /* result scalar */
 
     bool prefer_int;
+    bool prefer_float32;
     bool canonical;
 } enc_t;
 
@@ -191,7 +192,11 @@ STATIC_INLINE void _msgpack_pack_sv(pTHX_ enc_t* const enc, SV* const sv, int co
             }
         }
     } else if (SvNOKp(sv)) {
-        msgpack_pack_double(enc, (double)SvNVX(sv));
+        if(enc->prefer_float32) {
+            msgpack_pack_float(enc, (float)SvNVX(sv));
+        } else {
+            msgpack_pack_double(enc, (double)SvNVX(sv));
+        }
     } else if (SvIOKp(sv)) {
         if(SvUOK(sv)) {
             PACK_UV(enc, SvUVX(sv));
@@ -323,6 +328,7 @@ XS(xs_pack) {
     // setup configuration
     dMY_CXT;
     enc.prefer_int = MY_CXT.prefer_int; // back compat
+    enc.prefer_float32 = false;
     if(SvROK(self) && SvTYPE(SvRV(self)) == SVt_PVHV) {
         HV* const hv = (HV*)SvRV(self);
         SV** svp;
@@ -330,6 +336,11 @@ XS(xs_pack) {
         svp = hv_fetchs(hv, "prefer_integer", FALSE);
         if(svp) {
             enc.prefer_int = SvTRUE(*svp) ? true : false;
+        }
+
+        svp = hv_fetchs(hv, "prefer_float32", FALSE);
+        if(svp) {
+            enc.prefer_float32 = SvTRUE(*svp) ? true : false;
         }
 
         svp = hv_fetchs(hv, "canonical", FALSE);
