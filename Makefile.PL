@@ -29,9 +29,9 @@ if ( $] >= 5.008005 and want_xs() ) {
         cc_warnings;
         cc_include_paths('include');
         cc_src_paths('xs-src');
-	postamble (qq{
+    postamble (qq{
 xs-src/pack.o : xshelper.h include/msgpack/pack_define.h include/msgpack/pack_template.h include/msgpack/sysdep.h
-xs-src/unpack.o : xshelper.h include/msgpack/unpack_define.h include/msgpack/unpack_template.h include/msgpack/sysdep.h
+xs-src/unpack.o : xshelper.h include/msgpack/unpack.h include/msgpack/unpack_define.h include/msgpack/unpack_template.h include/msgpack/sysdep.h
 });
 
         if($Module::Install::AUTHOR) {
@@ -126,10 +126,7 @@ sub init_msgpack {
 
     my %msgpack_header = (
         'include'                => ['msgpack-c/include/msgpack.h'],
-        'include/msgpack'        => [<msgpack-c/include/msgpack/pack*.h>,
-                                     <msgpack-c/include/msgpack/unpack*.h>,
-                                     'msgpack-c/include/msgpack/sysdep.h',
-                                     'msgpack-c/include/msgpack/predef.h'],
+        'include/msgpack'        => [<msgpack-c/include/msgpack/*.h>],
         'include/msgpack/predef' => ['msgpack-c/include/msgpack/predef'],
     );
 

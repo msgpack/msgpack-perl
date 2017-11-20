@@ -19,12 +19,23 @@ sub packit_utf8 {
     $_;
 }
 
+sub packit_float32 {
+    local $_ = unpack("H*", Data::MessagePack->new->prefer_float32->pack($_[0]));
+    s/(..)/$1 /g;
+    s/ $//;
+    $_;
+}
+
 sub pis ($$) {
     is packit($_[0]), $_[1], 'dump ' . $_[1];
 }
 
 sub pis_utf8 ($$) {
     is packit_utf8($_[0]), $_[1], 'dump ' . $_[1];
+}
+
+sub pis_float32 ($$) {
+    is packit_float32($_[0]), $_[1], 'dump ' . $_[1];
 }
 
 my @dat = (
@@ -88,7 +99,7 @@ my @dat_utf8 = (
     'a' x 0x0100, 'da 01 00' . (' 61' x 0x0100),
 );
 
-plan tests => 1*(scalar(@dat)/2) + 1*(scalar(@dat_utf8)/2);
+plan tests => 1*(scalar(@dat)/2) + 1*(scalar(@dat_utf8)/2) + 1;
 
 for (my $i=0; $i<scalar(@dat); ) {
     pis $dat[$i++], $dat[$i++];
@@ -97,3 +108,6 @@ for (my $i=0; $i<scalar(@dat); ) {
 for (my $i=0; $i<scalar(@dat_utf8); ) {
     pis_utf8 $dat_utf8[$i++], $dat_utf8[$i++];
 }
+
+pis_float32 1.0, 'ca 3f 80 00 00';
+
