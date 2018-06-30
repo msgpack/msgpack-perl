@@ -1,0 +1,9 @@
+name = "Data-MessagePack"
+authority = "cpan:TOKUHIROM"
+allow_pureperl = 1
+badges = ["travis"]
+module_maker = "ModuleBuild"
+tag_format = "perl-%v"
+
+[build]
+build_class = "builder::MyBuilder"
