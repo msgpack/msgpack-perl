@@ -3,6 +3,7 @@ use 5.008001;
 use strict;
 use warnings;
 no warnings 'recursion';
+use Data::MessagePack::Ext;
 
 use Carp ();
 use B ();
@@ -227,6 +228,23 @@ sub _pack {
         return  CORE::pack( 'C', ${$value} ? 0xc3 : 0xc2 );
     }
 
+    elsif ( ref( $value ) eq 'Data::MessagePack::Ext' ) {
+        my $num = length $value->{data};
+        my $header =
+              $num == 1 ? CORE::pack( 'C',  0xd4)
+              : $num == 2 ? CORE::pack( 'C',  0xd5)
+              : $num == 4 ? CORE::pack( 'C',  0xd6)
+              : $num == 8 ? CORE::pack( 'C',  0xd7)
+              : $num == 16 ? CORE::pack( 'C',  0xd8)
+              : $num <= 2 ** 8 - 1 ? CORE::pack( 'CC',  0xc7, $num )
+              : $num <= 2 ** 16 - 1 ? CORE::pack( 'Cn', 0xc8, $num )
+              : $num <= 2 ** 32 - 1 ? CORE::pack( 'CN', 0xc9, $num )
+              : _unexpected('number %d', $num);
+        _unexpected('no type') if (!exists ($value->{type}));
+        _unexpected('no data') if (!exists ($value->{data}));
+        _unexpected('type %d', $value->{type}) if ($value->{type} < 0 || $value->{type} > 127);
+        return  join ('', $header, CORE::pack( 'c', $value->{type}), $value->{data});
+    }
 
     my $b_obj = B::svref_2object( \$value );
     my $flags = $b_obj->FLAGS;
@@ -321,6 +339,7 @@ my $T_STR             = 0x01;
 my $T_ARRAY           = 0x02;
 my $T_MAP             = 0x04;
 my $T_BIN             = 0x08;
+my $T_EXT             = 0x09;
 my $T_DIRECT          = 0x10; # direct mapping (e.g. 0xc0 <-> nil)
 
 my @typemap = ( (0x00) x 256 );
@@ -345,6 +364,13 @@ $typemap[$_] |= $T_BIN for
     0xc4,         # bin 8
     0xc5,         # bin 16
     0xc6,         # bin 32
+;
+
+$typemap[$_] |= $T_EXT for
+    0xd4 .. 0xd8, # fix ext
+    0xc7,         # ext 8
+    0xc8,         # ext 16
+    0xc9,         # ext 32
 ;
 
 my @byte2value;
@@ -392,7 +418,7 @@ sub _unpack {
     # +/- fixnum, nil, true, false
     return $byte2value[$byte] if $typemap[$byte] & $T_DIRECT;
 
-    if ( $typemap[$byte] & $T_STR ) {
+    if ( $typemap[$byte] == $T_STR ) {
         my $size = _fetch_size(\$value, $byte, 0xd9, 0xda, 0xdb, 0xa0);
         my $s    = substr( $value, $p, $size );
         length($s) == $size or _insufficient('raw');
@@ -400,13 +426,13 @@ sub _unpack {
         utf8::decode($s);
         return $s;
     }
-    elsif ( $typemap[$byte] & $T_ARRAY ) {
+    elsif ( $typemap[$byte] == $T_ARRAY ) {
         my $size = _fetch_size(\$value, $byte, undef, 0xdc, 0xdd, 0x90);
         my @array;
         push @array, _unpack( $value ) while --$size >= 0;
         return \@array;
     }
-    elsif ( $typemap[$byte] & $T_MAP ) {
+    elsif ( $typemap[$byte] == $T_MAP ) {
         my $size = _fetch_size(\$value, $byte, undef, 0xde, 0xdf, 0x80);
         my %map;
         while(--$size >= 0) {
@@ -417,13 +443,27 @@ sub _unpack {
         }
         return \%map;
     }
-    elsif ($typemap[$byte] & $T_BIN) {
+    elsif ($typemap[$byte] == $T_BIN) {
         my $size = _fetch_size(\$value, $byte, 0xc4, 0xc5, 0xc6, 0x80);
         my $s    = substr( $value, $p, $size );
         length($s) == $size or _insufficient('bin');
         $p      += $size;
         utf8::decode($s) if $_utf8;
         return $s;
+    }
+    elsif ($typemap[$byte] == $T_EXT) {
+        my $size = _fetch_size(\$value, $byte, 0xc7, 0xc8, 0xc9, 0xd4);
+        my $type = substr( $value, $p, 1 );
+        length($type) == 1 or _insufficient('ext');
+        $p      += 1;
+        if ($byte >= 0xd4) {
+            $size = 2 ** ($byte-0xd4);
+        }
+
+        my $data = substr( $value, $p, $size );
+        $p      += $size;
+        length($data) == $size or _insufficient('ext');
+        return Data::MessagePack::Ext->new(ord($type), $data);
     }
     elsif ( $byte == 0xcc ) { # uint8
         $p++;
@@ -553,7 +593,7 @@ sub _count {
     # +/- fixnum, nil, true, false
     return 1 if $typemap[$byte] & $T_DIRECT;
 
-    if ( $typemap[$byte] & $T_STR ) {
+    if ( $typemap[$byte] == $T_STR ) {
         my $num;
         if ( $byte == 0xd9 ) {
             $num = unpack 'C', substr( $value, $p, 1 );
@@ -573,7 +613,7 @@ sub _count {
         $p += $num;
         return 1;
     }
-    elsif ( $typemap[$byte] & $T_ARRAY ) {
+    elsif ( $typemap[$byte] == $T_ARRAY ) {
         my $num;
         if ( $byte == 0xdc ) { # array 16
             $num = unpack 'n', substr( $value, $p, 2 );
@@ -593,7 +633,7 @@ sub _count {
 
         return 1;
     }
-    elsif ( $typemap[$byte] & $T_MAP ) {
+    elsif ( $typemap[$byte] == $T_MAP ) {
         my $num;
         if ( $byte == 0xde ) { # map 16
             $num = unpack 'n', substr( $value, $p, 2 );
@@ -613,7 +653,7 @@ sub _count {
 
         return 1;
     }
-    elsif ( $typemap[$byte] & $T_BIN ) {
+    elsif ( $typemap[$byte] == $T_BIN ) {
         my $num;
         if ( $byte == 0xc4 ) { # bin 8
             $num = unpack 'C', substr( $value, $p, 1 );
@@ -629,6 +669,27 @@ sub _count {
         }
 
         $p += $num;
+        return 1;
+    }
+    elsif ( $typemap[$byte] == $T_EXT ) {
+        my $num = 0;
+        if ( $byte == 0xc7 ) { # ext 8
+            $num = unpack 'C', substr( $value, $p, 1 );
+            $p += 1;
+        }
+        elsif ( $byte == 0xc8 ) { # ext 16
+            $num = unpack 'n', substr( $value, $p, 2 );
+            $p += 2;
+        }
+        elsif ( $byte == 0xc9 ) { # ext 32
+            $num = unpack 'N', substr( $value, $p, 4 );
+            $p += 4;
+        }
+        elsif ( $byte >= 0xd4 ) { # fixext
+            $num = 2 ** ($byte-0xd4);
+        }
+
+        $p += $num+1;
         return 1;
     }
     elsif ( $byte >= 0xcc and $byte <= 0xcf ) { # uint

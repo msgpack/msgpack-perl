@@ -276,10 +276,12 @@ STATIC_INLINE int template_callback_bin(unpack_user* u PERL_UNUSED_DECL, const c
     return 0;
 }
 
-STATIC_INLINE int template_callback_ext(unpack_user* u PERL_UNUSED_DECL, const char* b PERL_UNUSED_DECL, const char* p PERL_UNUSED_DECL,
-                                        unsigned int l PERL_UNUSED_DECL, SV** o PERL_UNUSED_DECL)
+STATIC_INLINE int template_callback_ext(unpack_user* u PERL_UNUSED_DECL, const char* b PERL_UNUSED_DECL, const char* p, unsigned int l, SV** o)
 {
-    croak("EXT type is not supporeted yet");
+    SV *obj = (SV *)newRV_noinc ((SV *)newHV());
+    hv_stores ((HV *)SvRV(obj), "type", newSViv (*p));
+    hv_stores ((HV *)SvRV(obj), "data", ((l==1) ? newSVpvs("") : newSVpvn(p+1, l-1)));
+    *o = sv_bless(obj, gv_stashpv ("Data::MessagePack::Ext", 1));
     return 0;
 }
 

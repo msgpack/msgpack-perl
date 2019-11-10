@@ -1,3 +1,5 @@
+use Data::MessagePack::Ext;
+
 no warnings; # i need this, i need this.
 (
     '93 c0 c2 c3' => [undef, false, true],
@@ -62,4 +64,12 @@ no warnings; # i need this, i need this.
     'c4 06 72 65 73 75 6c 74' => "result",        # bin 8
     'c5 00 07 73 75 63 63 65 73 73' => "success", # bin 16
     'c6 00 00 00 05 74 6f 6b 65 6e' => "token",   # bin 32
+
+    'c7 00 55' => Data::MessagePack::Ext->new (85, ''),
+    'd4 55 61' => Data::MessagePack::Ext->new (85, 'a'),
+    'd5 55 61 61' => Data::MessagePack::Ext->new (85, 'aa'),
+    'd6 55 61 61 61 61' => Data::MessagePack::Ext->new (85, 'aaaa'),
+    'd7 55 61 61 61 61 61 61 61 61' => Data::MessagePack::Ext->new (85, 'aaaaaaaa'),
+    'd8 55 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61', Data::MessagePack::Ext->new(85, "aaaaaaaaaaaaaaaa"),
+    'c7 ff 55'.' 61' x 255, Data::MessagePack::Ext->new(85, "a" x 255),
 )

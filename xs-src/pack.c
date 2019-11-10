@@ -223,12 +223,29 @@ STATIC_INLINE void _msgpack_pack_rv(pTHX_ enc_t *enc, SV* sv, int depth, bool ut
     svt = SvTYPE(sv);
 
     if (SvOBJECT (sv)) {
-        HV *stash = gv_stashpv ("Data::MessagePack::Boolean", 1); // TODO: cache?
-        if (SvSTASH (sv) == stash) {
+        HV *boolstash = gv_stashpv ("Data::MessagePack::Boolean", 1); // TODO: cache?
+        HV *extstash = gv_stashpv ("Data::MessagePack::Ext", 1); // TODO: cache?
+        if (SvSTASH (sv) == boolstash) {
             if (SvIV(sv)) {
                 msgpack_pack_true(enc);
             } else {
                 msgpack_pack_false(enc);
+            }
+        } else if (SvSTASH (sv) == extstash) {
+            SV **type = hv_fetchs((HV *)sv, "type", 0);
+            SV **data = hv_fetchs((HV *)sv, "data", 0);
+            if (!type || !SvOK(*type))
+                croak ("Data::MessagePack::Ext object doesn't have a type member");
+            if (!data || !SvOK(*data))
+                croak ("Data::MessagePack::Ext object doesn't have a data member");
+            if (!SvIOK(*type) || SvIV(*type) < 0 || SvIV(*type)>255)
+                croak ("Data::MessagePack::Ext type invalid");
+
+            {
+                STRLEN const len     = SvCUR(*data);
+                const char* const pv = SvPVX_const(*data);
+                msgpack_pack_ext(enc, len, SvIV(*type));
+                msgpack_pack_ext_body(enc, pv, len);
             }
         } else {
             croak ("encountered object '%s', Data::MessagePack doesn't allow the object",
