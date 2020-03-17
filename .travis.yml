@@ -1,7 +1,9 @@
-sudo: false
 language: perl
 install: cpanm --installdeps --notest --quiet --with-configure --with-develop .
-perl:
-  - "5.26"
-  - "5.10"
-  - "5.8"
+matrix:
+  include:
+    - perl: "5.30"
+    - perl: "5.10"
+      dist: trusty
+    - perl: "5.8"
+      dist: trusty
