@@ -40,7 +40,7 @@ JSON.  But unlike JSON, it is very fast and small.
 - STREAMING DESERIALIZER
 
     MessagePack supports streaming deserializer. It is useful for
-    networking such as RPC.  See [Data::MessagePack::Unpacker](https://metacpan.org/pod/Data::MessagePack::Unpacker) for
+    networking such as RPC.  See [Data::MessagePack::Unpacker](https://metacpan.org/pod/Data%3A%3AMessagePack%3A%3AUnpacker) for
     details.
 
 If you want to get more information about the MessagePack format,
@@ -201,6 +201,6 @@ it under the same terms as Perl itself.
 
 [http://msgpack.org/](http://msgpack.org/) is the official web site for the  MessagePack format.
 
-[Data::MessagePack::Unpacker](https://metacpan.org/pod/Data::MessagePack::Unpacker)
+[Data::MessagePack::Unpacker](https://metacpan.org/pod/Data%3A%3AMessagePack%3A%3AUnpacker)
 
-[AnyEvent::MPRPC](https://metacpan.org/pod/AnyEvent::MPRPC)
+[AnyEvent::MPRPC](https://metacpan.org/pod/AnyEvent%3A%3AMPRPC)
