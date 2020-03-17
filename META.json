@@ -68,7 +68,7 @@
          "web" : "https://github.com/msgpack/msgpack-perl"
       }
    },
-   "version" : "1.00",
+   "version" : "1.01",
    "x_authority" : "cpan:TOKUHIROM",
    "x_contributors" : [
       "Brian Ketelsen <bketelsen@gmail.com>",
@@ -103,8 +103,9 @@
       "Perlover <perlover@perlover.com>",
       "Reini Urban <rurban@cpanel.net>",
       "Robin Smidsrød <robin@smidsrod.no>",
+      "Shohei YOSHIDA <shohei.yoshida@dena.com>",
+      "Shohei YOSHIDA <syohex@gmail.com>",
       "Shoichi Kaji <skaji@cpan.org>",
-      "Syohei YOSHIDA <syohex@gmail.com>",
       "Taro L. Saito <leo@xerial.org>",
       "Tokuhiro Matsuno <tokuhirom@gmail.com>",
       "UENISHI Kota <kuenishi+github@gmail.com>",
@@ -132,6 +133,6 @@
       "tokuhirom <tokuhirom@users.sourceforge.jp>",
       "xanxys <xanxys@gmail.com>"
    ],
-   "x_serialization_backend" : "JSON::PP version 4.04",
+   "x_serialization_backend" : "JSON::PP version 4.02",
    "x_static_install" : 0
 }
