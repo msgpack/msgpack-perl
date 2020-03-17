@@ -1,0 +1,137 @@
+{
+   "abstract" : "MessagePack serializing/deserializing",
+   "author" : [
+      "Tokuhiro Matsuno"
+   ],
+   "dynamic_config" : 0,
+   "generated_by" : "Minilla/v3.1.9, CPAN::Meta::Converter version 2.150010",
+   "license" : [
+      "perl_5"
+   ],
+   "meta-spec" : {
+      "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
+      "version" : 2
+   },
+   "name" : "Data-MessagePack",
+   "no_index" : {
+      "directory" : [
+         "t",
+         "xt",
+         "inc",
+         "share",
+         "eg",
+         "examples",
+         "author",
+         "builder"
+      ]
+   },
+   "prereqs" : {
+      "configure" : {
+         "requires" : {
+            "Devel::PPPort" : "3.42",
+            "Module::Build" : "0.4005",
+            "Module::Build::XSUtil" : "0"
+         }
+      },
+      "develop" : {
+         "requires" : {
+            "Test::CPAN::Meta" : "0",
+            "Test::LeakTrace" : "0",
+            "Test::MinimumVersion::Fast" : "0.04",
+            "Test::PAUSE::Permissions" : "0.07",
+            "Test::Pod" : "1.41",
+            "Test::Spellunker" : "v0.2.7"
+         }
+      },
+      "runtime" : {
+         "requires" : {
+            "Math::BigInt" : "1.89",
+            "perl" : "5.008001"
+         }
+      },
+      "test" : {
+         "requires" : {
+            "Test::More" : "0.98",
+            "Test::Requires" : "0"
+         }
+      }
+   },
+   "release_status" : "unstable",
+   "resources" : {
+      "bugtracker" : {
+         "web" : "https://github.com/msgpack/msgpack-perl/issues"
+      },
+      "homepage" : "https://github.com/msgpack/msgpack-perl",
+      "repository" : {
+         "type" : "git",
+         "url" : "git://github.com/msgpack/msgpack-perl.git",
+         "web" : "https://github.com/msgpack/msgpack-perl"
+      }
+   },
+   "version" : "1.00",
+   "x_authority" : "cpan:TOKUHIROM",
+   "x_contributors" : [
+      "Brian Ketelsen <bketelsen@gmail.com>",
+      "David Steinbrunner <dsteinbrunner@pobox.com>",
+      "FUJI Goro (gfx) <gfuji@cpan.org>",
+      "FURUHASHI Sadayuki <frsyuki@users.sourceforge.jp>",
+      "Fuji Goro <fuji.goro@dena.jp>",
+      "Fuji, Goro <g.psy.va@gmail.com>",
+      "Fuji, Goro <goro-fuji@cookpad.com>",
+      "Hideyuki TAKEI <takehide22@gmail.com>",
+      "Hideyuki Tanaka <hideyuki@hideyuki-vbox.(none)>",
+      "Hideyuki Tanaka <tanaka.hideyuki@gmail.com>",
+      "Hideyuki Tanaka <tanakh@tanakh-VirtualBox.(none)>",
+      "Hideyuki Tanaka <tanakh@tanakh-desktop.(none)>",
+      "INADA Naoki <songofacandy@gmail.com>",
+      "Kazuho Oku <kazuhooku@gmail.com>",
+      "Kazuki Ohta <kazuki.ohta@gmail.com>",
+      "Kazuki Ohta <kzk@il.is.s.u-tokyo.ac.jp>",
+      "Kazuki Oikawa <k@oikw.org>",
+      "Keiji Muraishi <keiji.muraishi@gmail.com>",
+      "Masahiro Nakagawa <repeatedly@gmail.com>",
+      "Moriyoshi Koizumi <mozo@mozo.jp>",
+      "Muga Nishizawa <muga.nishizawa@gmail.com>",
+      "Muga Nishizawa <muga@f11vm.(none)>",
+      "Naoki INADA <inada-n@eagle>",
+      "Naoki INADA <inada-n@gear>",
+      "Naoki INADA <inada-n@klab.jp>",
+      "Naoki INADA <inada-n@koala>",
+      "Naoki INADA <omoikane@sourceforge.jp>",
+      "Nicolas Despres <nicolas.despres@gmail.com>",
+      "Nikolay Mishin <mi@ya.ru>",
+      "Perlover <perlover@perlover.com>",
+      "Reini Urban <rurban@cpanel.net>",
+      "Robin Smidsrød <robin@smidsrod.no>",
+      "Shoichi Kaji <skaji@cpan.org>",
+      "Syohei YOSHIDA <syohex@gmail.com>",
+      "Taro L. Saito <leo@xerial.org>",
+      "Tokuhiro Matsuno <tokuhirom@gmail.com>",
+      "UENISHI Kota <kuenishi+github@gmail.com>",
+      "UENISHI Kota <kuenishi@gmail.com>",
+      "Vasily Titskiy <Vasiliy.Titskiy@bioscrypt.com>",
+      "Vincent de Phily <vincent.dephily@gmail.com>",
+      "Watabiki Naoya <watabiki.naoya@gmail.com>",
+      "Yuto Hayamizu <y.hayamizu@gmail.com>",
+      "advect <advect@gmail.com>",
+      "cho45 <cho45@lowreal.net>",
+      "egtra <valp_ab@yahoo.co.jp>",
+      "firewood <karamaki@gmail.com>",
+      "frsyuki (none) <frsyuki@vcore.>",
+      "frsyuki <frsyuki@5a5092ae-2292-43ba-b2d5-dcab9c1a2731>",
+      "frsyuki <frsyuki@vcore.(none)>",
+      "gfx <gfx@gfx-desktop.(none)>",
+      "inada-n <inada-n@hornet.(none)>",
+      "inada-n <inada-n@sag16.klab.org>",
+      "inada-n <omoikane@users.sourceforge.jp>",
+      "makamaka <makamaka.donzoko@gmail.com>",
+      "moaikids <moaikids@10.0.2.1>",
+      "mzp <mzpppp@gmail.com>",
+      "tailhook <pc@gafol.net>",
+      "takeshita <takeshita@geishatokyo.com>",
+      "tokuhirom <tokuhirom@users.sourceforge.jp>",
+      "xanxys <xanxys@gmail.com>"
+   ],
+   "x_serialization_backend" : "JSON::PP version 4.04",
+   "x_static_install" : 0
+}
