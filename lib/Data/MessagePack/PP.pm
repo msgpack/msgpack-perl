@@ -234,7 +234,7 @@ sub _pack {
     if ( $flags & B::SVp_POK ) { # raw / check needs before double
 
         if ( $self->{prefer_integer} ) {
-            if ( $value =~ /^-?[0-9]+$/ ) { # ok?
+            if ( $value =~ /^(0|-?[1-9][0-9]*)$/ ) { # ok?
                 # checks whether $value is in (u)int32
                 my $ivalue = 0 + $value;
                 if (!(

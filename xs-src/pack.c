@@ -131,6 +131,8 @@ STATIC_INLINE int try_int(enc_t* enc, const char *p, size_t len) {
         if (len > 10) { return 0; }
     }
 
+    if (*p == '0' && len != 1) { return 0; }
+
 #if '9'=='8'+1 && '8'=='7'+1 && '7'=='6'+1 && '6'=='5'+1 && '5'=='4'+1 \
                && '4'=='3'+1 && '3'=='2'+1 && '2'=='1'+1 && '1'=='0'+1
     do {
