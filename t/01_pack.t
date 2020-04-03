@@ -1,6 +1,7 @@
 use t::Util;
 use Test::More;
 use Data::MessagePack;
+use Data::MessagePack::Ext;
 if ($] >= 5.019) {
   require Scalar::Util;
 }
@@ -72,6 +73,16 @@ my @dat = (
     -2147483648, 'd2 80 00 00 00',
     'a' x 0x0100, 'c5 01 00' . (' 61' x 0x0100),
     [(undef) x 0x0100], 'dc 01 00' . (' c0' x 0x0100),
+    Data::MessagePack::Ext->new(85, ""), 'c7 00 55',
+    Data::MessagePack::Ext->new(85, "a"), 'd4 55 61',
+    Data::MessagePack::Ext->new(85, "aa"), 'd5 55 61 61',
+    Data::MessagePack::Ext->new(85, "aaaa"), 'd6 55 61 61 61 61',
+    Data::MessagePack::Ext->new(85, "aaaaaaaa"), 'd7 55 61 61 61 61 61 61 61 61',
+    Data::MessagePack::Ext->new(85, "aaaaaaaaaaaaaaaa"), 'd8 55 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61',
+    Data::MessagePack::Ext->new(85, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"), 'c7 1f 55 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61',
+    Data::MessagePack::Ext->new(85, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"), 'c7 20 55 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61',
+    Data::MessagePack::Ext->new(85, "a" x 255), 'c7 ff 55'.' 61' x 255,
+    Data::MessagePack::Ext->new(85, "a" x 256), 'c8 01 00 55'.' 61' x 256,
 );
 
 my @dat_utf8 = (
