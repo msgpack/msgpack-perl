@@ -36,7 +36,7 @@ sub new {
     return bless \%args, $class;
 }
 
-foreach my $name(qw(canonical prefer_integer utf8)) {
+foreach my $name(qw(canonical prefer_integer utf8 prefer_types_serialiser)) {
     my $setter = sub {
         my($self, $value) = @_;
         $self->{$name} = defined($value) ? $value : 1;
@@ -109,6 +109,25 @@ details.
 If you want to get more information about the MessagePack format,
 please visit to L<http://msgpack.org/>.
 
+=head1 ABOUT BOOLEANS
+
+Because Perl lacks a boolean type, this module follows the following
+conventions:
+
+=over
+
+=item * C<Types::Serialiser::true> and C<Data::MessagePack::Boolean::true>
+are serialized as boolean true. Likewise, C<Types::Serialiser::false> and
+C<Data::MessagePack::Boolean::false> are serialized as boolean false.
+
+=item * By default, this module’s C<unpack> method recreates boolean
+values as either C<Data::MessagePack::Boolean::true> or
+C<Data::MessagePack::Boolean::false>. If you enable the
+C<prefer_types_serialiser> flag, then C<unpack> will use
+C<Types::Serialiser::true> and C<Types::Serialiser::false> instead.
+
+=back
+
 =head1 METHODS
 
 =over
@@ -157,6 +176,15 @@ apply C<utf8::encode()> to all the string values.
 
 In other words, this property tell C<$mp> to deal with B<text strings>.
 See L<perlunifaq> for the meaning of B<text string>.
+
+=item C<< $mp = $mp->prefer_types_serialiser([ $enable ]) >>
+
+=item C<< $enabled = $mp->get_prefer_types_serialiser() >>
+
+If I<$enable> is true (or missing), then the C<unpack> method will use
+L<Types::Serialiser> (rather than C<Data::MessagePack::Boolean>) to represent
+boolean values. This is useful for interoperability with other Perl
+serialization modules like L<JSON>.
 
 =item C<< $packed = $mp->pack($data) >>
 
