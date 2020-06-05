@@ -17,6 +17,10 @@ typedef struct {
 } unpack_user;
 #define UNPACK_USER_INIT { false, false, NULL }
 
+#ifndef MIN
+#define MIN(a,b) ((a) < (b) ? (a) : (b))
+#endif
+
 #include "msgpack/unpack_define.h"
 
 #define msgpack_unpack_struct(name) \
@@ -225,7 +229,7 @@ STATIC_INLINE int template_callback_array(unpack_user* u PERL_UNUSED_DECL, unsig
     dTHX;
     AV* const a = newAV();
     *o = newRV_noinc((SV*)a);
-    av_extend(a, n + 1);
+    av_extend(a, MIN(n, 4096) + 1);
     return 0;
 }
 
@@ -242,7 +246,7 @@ STATIC_INLINE int template_callback_map(unpack_user* u PERL_UNUSED_DECL, unsigne
 {
     dTHX;
     HV* const h = newHV();
-    hv_ksplit(h, n);
+    hv_ksplit(h, MIN(n, 65536));
     *o = newRV_noinc((SV*)h);
     return 0;
 }
