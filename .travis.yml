@@ -1,9 +1,0 @@
-language: perl
-install: cpanm --installdeps --notest --quiet --with-configure --with-develop .
-matrix:
-  include:
-    - perl: "5.30"
-    - perl: "5.10"
-      dist: trusty
-    - perl: "5.8"
-      dist: trusty
