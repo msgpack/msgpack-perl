@@ -2,6 +2,12 @@ use t::Util;
 use Test::More;
 use Data::MessagePack;
 use Data::Dumper;
+use Config;
+
+# if use_quadmath is enabled, integer literal precision is different from non use_quadmath perl
+use if defined $Config{usequadmath},
+    'Test::More', skip_all => 'quadmath is not support this test';
+
 no warnings; # shut up "Integer overflow in hexadecimal number"
 
 sub packit {
