@@ -2,6 +2,9 @@ Revision history for Perl extension Data-MessagePack
 
 {{$NEXT}}
 
+1.02 2022-03-11T14:27:47Z
+    - Fix test for usequadmath Perl
+
 1.01 2020-03-17T17:06:53Z
 
     - Switch to Minilla from Module::Install
