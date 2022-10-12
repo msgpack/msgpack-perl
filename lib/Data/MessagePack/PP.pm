@@ -155,8 +155,9 @@ BEGIN {
     @Data::MessagePack::ISA           = qw(Data::MessagePack::PP);
     @Data::MessagePack::Unpacker::ISA = qw(Data::MessagePack::PP::Unpacker);
 
-    *true  = \&Data::MessagePack::true;
-    *false = \&Data::MessagePack::false;
+    *true    = \&Data::MessagePack::true;
+    *false   = \&Data::MessagePack::false;
+    *is_bool = \&Data::MessagePack::is_bool;
 }
 
 sub _unexpected {
@@ -223,7 +224,7 @@ sub _pack {
         }
     }
 
-    elsif ( ref( $value ) eq 'Data::MessagePack::Boolean' ) {
+    elsif ( is_bool( $value ) ) {
         return  CORE::pack( 'C', ${$value} ? 0xc3 : 0xc2 );
     }
 
