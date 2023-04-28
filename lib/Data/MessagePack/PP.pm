@@ -87,9 +87,15 @@ BEGIN {
                 my @v = unpack( 'V2', pack( 'q', $_[0] ) );
                 return pack 'CN2', 0xd3, @v[1,0];
             };
+
             *pack_double = $pack_double_oabi || sub {
                 my @v = unpack( 'V2', pack( 'd', $_[0] ) );
                 return pack 'CN2', 0xcb, @v[1,0];
+            };
+
+            *pack_float = sub {
+                my @v = unpack( 'V2', pack( 'f', $_[0] ) );
+                return pack 'CN2', 0xca, @v[1,0];
             };
 
             *unpack_float = sub {
@@ -113,6 +119,7 @@ BEGIN {
         else { # big endian
             *pack_uint64   = sub { return pack 'CQ', 0xcf, $_[0]; };
             *pack_int64    = sub { return pack 'Cq', 0xd3, $_[0]; };
+            *pack_float   =  sub { return pack 'Cf', 0xca, $_[0]; };
             *pack_double   = $pack_double_oabi || sub { return pack 'Cd', 0xcb, $_[0]; };
 
             *unpack_float  = sub { return unpack( 'f', substr( $_[0], $_[1], 4 ) ); };
@@ -139,6 +146,7 @@ BEGIN {
         # pack_int64/uint64 are used only when the perl support quad types
         *pack_uint64   = sub { return pack 'CQ>', 0xcf, $_[0]; };
         *pack_int64    = sub { return pack 'Cq>', 0xd3, $_[0]; };
+        *pack_float   = sub { return pack 'Cf>', 0xca, $_[0]; };
         *pack_double   = $pack_double_oabi || sub { return pack 'Cd>', 0xcb, $_[0]; };
 
         *unpack_float  = sub { return unpack( 'f>', substr( $_[0], $_[1], 4 ) ); };
@@ -175,6 +183,7 @@ sub pack :method {
     Carp::croak('Usage: Data::MessagePack->pack($dat [,$max_depth])') if @_ < 2;
     $_max_depth = defined $max_depth ? $max_depth : 512; # init
 
+    # back-compat
     if(not ref $self) {
         $self = $self->new(
             prefer_integer => $Data::MessagePack::PreferInteger || 0,
@@ -271,7 +280,12 @@ sub _pack {
         return $header . $value;
 
     }
-    elsif( $flags & B::SVp_NOK ) { # double only
+    elsif( $flags & B::SVp_NOK ) {
+        # double unless user prefers single precision
+        if($self->{prefer_float32}) {
+            return pack_float( $value );
+        }
+
         return pack_double( $value );
     }
     elsif ( $flags & B::SVp_IOK ) {
