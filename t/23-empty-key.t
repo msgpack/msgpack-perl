@@ -6,8 +6,6 @@ use warnings;
 
 use Test::More tests => 3;
 
-local $TODO = "not yet";
-
 my @orig = (
     ["ZZZ",{"10000050C2400102" => {"1332129147" => ["\x01\x07\x07 \xf7","2.48292"]}}],
     ["ZZZ",{"" => {}}],
@@ -44,6 +42,7 @@ if ($up->is_finished)
     {
         push(@res, $up->data);
 
+        local $TODO = 'not yet';
         is_deeply(\@res, \@orig) or diag(explain([\@res, \@orig]));
     }
     else

@@ -5,6 +5,7 @@ use Data::MessagePack;
 use Devel::Peek;
 
 plan skip_all => '$ENV{LEAK_TEST} is required' unless $ENV{LEAK_TEST};
+plan skip_all => 'need /proc filesystem' unless -d "/proc/$$";
 
 my $input = [
     {
