@@ -7,8 +7,6 @@ MessagePack.o
 MessagePack.c
 blib/
 inc/
-include/
-t/std/
 *.o
 pm_to_blib
 MANIFEST
@@ -18,4 +16,8 @@ xshelper.h
 *.swp
 *~
 *.bak
-
+/Data-MessagePack-*
+/Build
+/Build.bat
+/_build/
+/lib/Data/MessagePack.xs

@@ -1,3 +1,15 @@
+Revision history for Perl extension Data-MessagePack
+
+{{$NEXT}}
+
+1.02 2022-03-11T14:27:47Z
+    - Fix test for usequadmath Perl
+
+1.01 2020-03-17T17:06:53Z
+
+    - Switch to Minilla from Module::Install
+    - Fix test for newer Windows Perl
+
 1.00 2016-08-21 15:30:00+0900
 
     - Update major version for MessagePack versioning rule
